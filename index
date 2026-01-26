@@ -1,3 +1,6 @@
+.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,51 +8,627 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lens Text Cleaner & Reader</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; background: #f4f4f9; }
-        textarea { width: 100%; height: 150px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; }
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 5px; background: #007bff; color: white; font-weight: bold; }
-        button:hover { background: #0056b3; }
-        .speak-btn { background: #28a745; }
-        select { padding: 10px; border-radius: 5px; }
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --success: #10b981;
+            --success-dark: #0da271;
+            --danger: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --border: #e5e7eb;
+            --radius: 10px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.2s ease;
+        }
+
+        .dark-mode {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --success-dark: #0da271;
+            --danger: #ef4444;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --border: #4b5563;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            transition: var(--transition);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        h2, h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            width: 60px;
+            height: 30px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 5px;
+        }
+
+        .theme-toggle::after {
+            content: '☀️';
+            position: absolute;
+            right: 5px;
+            font-size: 14px;
+        }
+
+        .theme-toggle::before {
+            content: '🌙';
+            position: absolute;
+            left: 5px;
+            font-size: 14px;
+        }
+
+        .theme-toggle .toggle-slider {
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            left: 3px;
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        .dark-mode .theme-toggle .toggle-slider {
+            left: 33px;
+            background: var(--primary-dark);
+        }
+
+        textarea {
+            width: 100%;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 15px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        textarea#outputText {
+            background: var(--bg-tertiary);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex: 1;
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: var(--success-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        select {
+            padding: 12px 15px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-item label {
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+        }
+
+        .range-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .char-count {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .word-count {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .preview-box {
+            padding: 15px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            min-height: 80px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+            max-height: 200px;
+            display: none;
+        }
+
+        .preview-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .preview-toggle {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+            }
+           
+            .control-group {
+                flex-direction: column;
+            }
+           
+            button, select {
+                width: 100%;
+                justify-content: center;
+            }
+           
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .icon {
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
+    <header>
+        <div>
+            <h1>Lens Text Cleaner & Reader</h1>
+            <p class="subtitle">Clean OCR text from Google Lens and listen to it read aloud</p>
+        </div>
+        <div class="theme-toggle" id="themeToggle">
+            <div class="toggle-slider"></div>
+        </div>
+    </header>
 
-    <h2>Lens Text Cleaner</h2>
-    <textarea id="inputText" placeholder="Paste text from Google Lens here..."></textarea>
-    
-    <div class="controls">
-        <button onclick="cleanText()">Clean Text</button>
-        <select id="langSelect">
-            <option value="ml-IN">Malayalam</option>
-            <option value="en-US">English</option>
-        </select>
-        <button class="speak-btn" onclick="speakText()">Read Aloud</button>
+    <div class="section">
+        <h2>Input Text</h2>
+        <textarea id="inputText" placeholder="Paste text from Google Lens here..."></textarea>
+        <div class="stats">
+            <div>Characters: <span class="char-count" id="inputCharCount">0</span></div>
+            <div>Words: <span class="word-count" id="inputWordCount">0</span></div>
+        </div>
     </div>
 
-    <h3>Cleaned Result:</h3>
-    <textarea id="outputText" readonly></textarea>
+    <div class="options">
+        <h3 style="grid-column: 1 / -1; margin-bottom: 0;">Cleaning Options</h3>
+        <div class="option-item">
+            <input type="checkbox" id="removeExtraSpaces" checked>
+            <label for="removeExtraSpaces">Remove extra spaces</label>
+        </div>
+        <div class="option-item">
+            <input type="checkbox" id="removeLineBreaks" checked>
+            <label for="removeLineBreaks">Remove line breaks</label>
+        </div>
+        <div class="option-item">
+            <input type="checkbox" id="fixCommonOCR" checked>
+            <label for="fixCommonOCR">Fix common OCR errors</label>
+        </div>
+        <div class="option-item">
+            <input type="checkbox" id="trimText" checked>
+            <label for="trimText">Trim whitespace</label>
+        </div>
+        <div class="option-item">
+            <input type="checkbox" id="capitalizeSentences">
+            <label for="capitalizeSentences">Capitalize sentences</label>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <button class="btn-primary" onclick="cleanText()">
+                <span class="icon">🧹</span> Clean Text
+            </button>
+            <button class="btn-danger" onclick="clearAll()">
+                <span class="icon">🗑️</span> Clear All
+            </button>
+        </div>
+        <div class="control-group">
+            <select id="langSelect">
+                <option value="ml-IN">Malayalam</option>
+                <option value="en-US" selected>English</option>
+                <option value="hi-IN">Hindi</option>
+                <option value="ta-IN">Tamil</option>
+                <option value="kn-IN">Kannada</option>
+                <option value="te-IN">Telugu</option>
+            </select>
+            <button class="btn-success" onclick="speakText()">
+                <span class="icon">🔊</span> Read Aloud
+            </button>
+            <button class="btn-danger" onclick="stopSpeaking()">
+                <span class="icon">⏹️</span> Stop
+            </button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="preview-title">
+            <h3>Cleaned Result Preview</h3>
+            <button class="preview-toggle" onclick="togglePreview()">Show Preview</button>
+        </div>
+        <div class="preview-box" id="previewBox"></div>
+       
+        <div style="margin-top: 20px;">
+            <h3>Cleaned Result:</h3>
+            <textarea id="outputText" readonly placeholder="Cleaned text will appear here..."></textarea>
+            <div class="stats">
+                <div>Characters: <span class="char-count" id="outputCharCount">0</span></div>
+                <div>Words: <span class="word-count" id="outputWordCount">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Voice Settings</h3>
+        <div class="options">
+            <div style="grid-column: 1 / -1;">
+                <div class="range-label">
+                    <span>Speech Rate</span>
+                    <span id="rateValue">1.0</span>
+                </div>
+                <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+            <div style="grid-column: 1 / -1;">
+                <div class="range-label">
+                    <span>Speech Pitch</span>
+                    <span id="pitchValue">1.0</span>
+                </div>
+                <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Lens Text Cleaner & Reader • Paste text from Google Lens OCR to clean and listen</p>
+        <p>Supports multiple languages and advanced text cleaning options</p>
+    </footer>
 
     <script>
-        function cleanText() {
-            let text = document.getElementById('inputText').value;
-            // Removes multiple spaces, newlines, and tabs, replacing them with a single space
-            let cleaned = text.replace(/\s+/g, ' ').trim();
-            document.getElementById('outputText').value = cleaned;
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
         }
 
+        // Update character and word counts
+        function updateCounts() {
+            const inputText = document.getElementById('inputText').value;
+            const outputText = document.getElementById('outputText').value;
+           
+            document.getElementById('inputCharCount').textContent = inputText.length;
+            document.getElementById('inputWordCount').textContent = inputText.trim() === '' ? 0 : inputText.trim().split(/\s+/).length;
+           
+            document.getElementById('outputCharCount').textContent = outputText.length;
+            document.getElementById('outputWordCount').textContent = outputText.trim() === '' ? 0 : outputText.trim().split(/\s+/).length;
+        }
+
+        // Input text event listener
+        document.getElementById('inputText').addEventListener('input', updateCounts);
+       
+        // Update counts on load
+        updateCounts();
+
+        // Toggle preview
+        function togglePreview() {
+            const previewBox = document.getElementById('previewBox');
+            const previewToggle = document.querySelector('.preview-toggle');
+           
+            if (previewBox.style.display === 'block') {
+                previewBox.style.display = 'none';
+                previewToggle.textContent = 'Show Preview';
+            } else {
+                previewBox.style.display = 'block';
+                previewToggle.textContent = 'Hide Preview';
+                previewBox.textContent = document.getElementById('outputText').value || 'No cleaned text yet.';
+            }
+        }
+
+        // Clean text function
+        function cleanText() {
+            let text = document.getElementById('inputText').value;
+           
+            // Apply cleaning options
+            if (document.getElementById('removeExtraSpaces').checked) {
+                text = text.replace(/\s+/g, ' ');
+            }
+           
+            if (document.getElementById('removeLineBreaks').checked) {
+                text = text.replace(/\n+/g, ' ');
+            }
+           
+            if (document.getElementById('trimText').checked) {
+                text = text.trim();
+            }
+           
+            if (document.getElementById('fixCommonOCR').checked) {
+                // Fix common OCR errors
+                text = text.replace(/[|]/g, 'I'); // Common OCR mistake
+                text = text.replace(/[0]/g, 'O'); // Number 0 to letter O
+                text = text.replace(/[1]/g, 'l'); // Number 1 to letter l
+                text = text.replace(/[5]/g, 'S'); // Number 5 to letter S
+            }
+           
+            if (document.getElementById('capitalizeSentences').checked) {
+                // Capitalize first letter of each sentence
+                text = text.replace(/(^\s*|[.!?]\s+)([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
+            }
+           
+            // Update output
+            document.getElementById('outputText').value = text;
+           
+            // Update preview if visible
+            const previewBox = document.getElementById('previewBox');
+            if (previewBox.style.display === 'block') {
+                previewBox.textContent = text || 'No cleaned text yet.';
+            }
+           
+            updateCounts();
+        }
+
+        // Clear all text
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+            document.getElementById('previewBox').textContent = '';
+            updateCounts();
+        }
+
+        // Speech synthesis
+        let currentSpeech = null;
+       
         function speakText() {
             let text = document.getElementById('outputText').value;
             if (!text) {
                 alert("Please clean some text first!");
                 return;
             }
+           
+            // Stop any ongoing speech
+            stopSpeaking();
+           
+            // Create new utterance
             let utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = document.getElementById('langSelect').value;
+            utterance.rate = parseFloat(document.getElementById('rateSlider').value);
+            utterance.pitch = parseFloat(document.getElementById('pitchSlider').value);
+           
+            // Speak
             window.speechSynthesis.speak(utterance);
+            currentSpeech = utterance;
+           
+            // Update button state
+            document.querySelector('.btn-success').innerHTML = '<span class="icon">⏸️</span> Pause';
+            document.querySelector('.btn-success').onclick = pauseSpeaking;
         }
-    </script>
+       
+        function pauseSpeaking() {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.pause();
+                document.querySelector('.btn-success').innerHTML = '<span class="icon">▶️</span> Resume';
+                document.querySelector('.btn-success').onclick = resumeSpeaking;
+            }
+        }
+       
+        function resumeSpeaking() {
+            if (window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+                document.querySelector('.btn-success').innerHTML = '<span class="icon">⏸️</span> Pause';
+                document.querySelector('.btn-success').onclick = pauseSpeaking;
+            }
+        }
+       
+        function stopSpeaking() {
+            window.speechSynthesis.cancel();
+            document.querySelector('.btn-success').innerHTML = '<span class="icon">🔊</span> Read Aloud';
+            document.querySelector('.btn-success').onclick = speakText;
+            currentSpeech = null;
+        }
 
+        // Update slider values
+        document.getElementById('rateSlider').addEventListener('input', function() {
+            document.getElementById('rateValue').textContent = this.value;
+        });
+       
+        document.getElementById('pitchSlider').addEventListener('input', function() {
+            document.getElementById('pitchValue').textContent = this.value;
+        });
+
+        // Auto-clean on paste with a short delay
+        document.getElementById('inputText').addEventListener('paste', function() {
+            setTimeout(cleanText, 100);
+        });
+
+        // Initialize sliders
+        document.getElementById('rateValue').textContent = document.getElementById('rateSlider').value;
+        document.getElementById('pitchValue').textContent = document.getElementById('pitchSlider').value;
+    </script>
 </body>
 </html>
