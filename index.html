@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lens Text Cleaner & Reader - Download Notes</title>
+    <meta name="description" content="Clean OCR text from Google Lens, listen, and download as notes">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
     <style>
         :root {
@@ -148,11 +149,22 @@
             align-items: center;
             gap: 8px;
             font-size: 0.95rem;
+            user-select: none;
         }
 
         button:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
         }
 
         .btn-primary {
@@ -331,6 +343,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            max-width: 350px;
         }
 
         .notification.show {
@@ -341,13 +354,46 @@
             text-align: center;
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
             color: var(--text-secondary);
             font-size: 0.9rem;
         }
 
         .icon {
             font-size: 1.1rem;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .voice-slider {
+            flex: 1;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .tts-status {
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius);
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        .tts-status.active {
+            display: block;
+            color: var(--success);
         }
     </style>
 </head>
@@ -414,18 +460,40 @@
                 <option value="ml-IN">Malayalam</option>
                 <option value="hi-IN">Hindi</option>
                 <option value="ta-IN">Tamil</option>
+                <option value="kn-IN">Kannada</option>
+                <option value="te-IN">Telugu</option>
             </select>
            
+            <div class="voice-controls">
+                <div class="voice-slider">
+                    <div class="slider-label">
+                        <span>Speed: <span id="speedValue">1.0</span></span>
+                    </div>
+                    <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+               
+                <div class="voice-slider">
+                    <div class="slider-label">
+                        <span>Pitch: <span id="pitchValue">1.0</span></span>
+                    </div>
+                    <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+            </div>
+           
             <div class="controls">
-                <button class="btn-success" onclick="speakText()">
+                <button class="btn-success" id="speakButton" onclick="toggleSpeech()">
                     <span class="icon">🔊</span> Read Aloud
                 </button>
-                <button class="btn-danger" onclick="stopSpeaking()">
+                <button class="btn-danger" id="stopButton" onclick="stopSpeaking()" disabled>
                     <span class="icon">⏹️</span> Stop
                 </button>
                 <button class="btn-warning" onclick="copyText()">
                     <span class="icon">📋</span> Copy
                 </button>
+            </div>
+           
+            <div class="tts-status" id="ttsStatus">
+                Ready to speak
             </div>
         </div>
     </div>
@@ -483,6 +551,15 @@
     </div>
 
     <script>
+        // Check if speech synthesis is available
+        const speechAvailable = 'speechSynthesis' in window;
+       
+        if (!speechAvailable) {
+            document.getElementById('speakButton').disabled = true;
+            document.getElementById('speakButton').innerHTML = '<span class="icon">⚠️</span> TTS Not Supported';
+            showNotification("Text-to-speech not supported in your browser");
+        }
+
         // Theme Toggle
         const themeToggle = document.getElementById('themeToggle');
         themeToggle.addEventListener('click', () => {
@@ -539,11 +616,14 @@
                 text = text.replace(/[|]/g, 'I');
                 text = text.replace(/[0]/g, 'O');
                 text = text.replace(/[1]/g, 'l');
+                text = text.replace(/[5]/g, 'S');
             }
            
             if (document.getElementById('capitalize').checked) {
                 text = text.trim();
-                text = text.charAt(0).toUpperCase() + text.slice(1);
+                if (text.length > 0) {
+                    text = text.charAt(0).toUpperCase() + text.slice(1);
+                }
                 text = text.replace(/([.!?])\s+([a-z])/g, (match, p1, p2) => p1 + ' ' + p2.toUpperCase());
             }
            
@@ -561,31 +641,119 @@
             showNotification("All fields cleared!");
         }
 
-        // Text-to-Speech
+        // Text-to-Speech Functions
         let currentSpeech = null;
+        let isSpeaking = false;
        
-        function speakText() {
+        function updateTTSStatus(message, isActive = false) {
+            const status = document.getElementById('ttsStatus');
+            status.textContent = message;
+            status.className = 'tts-status' + (isActive ? ' active' : '');
+        }
+       
+        function toggleSpeech() {
+            if (isSpeaking) {
+                pauseSpeaking();
+            } else {
+                startSpeaking();
+            }
+        }
+       
+        function startSpeaking() {
             const text = document.getElementById('outputText').value;
-            if (!text) {
+            if (!text || !speechAvailable) {
                 showNotification("Please clean some text first!");
                 return;
             }
            
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.resume();
+                isSpeaking = true;
+                updateTTSStatus("Speaking...", true);
+                updateSpeechButtons();
+                return;
+            }
+           
+            // Stop any ongoing speech
             stopSpeaking();
            
+            // Create new utterance
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = document.getElementById('langSelect').value;
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
+            utterance.rate = parseFloat(document.getElementById('speedSlider').value);
+            utterance.pitch = parseFloat(document.getElementById('pitchSlider').value);
+            utterance.volume = 1;
            
+            // Event handlers
+            utterance.onstart = function() {
+                isSpeaking = true;
+                updateTTSStatus("Speaking...", true);
+                updateSpeechButtons();
+            };
+           
+            utterance.onend = function() {
+                isSpeaking = false;
+                updateTTSStatus("Finished speaking", false);
+                updateSpeechButtons();
+            };
+           
+            utterance.onerror = function(event) {
+                isSpeaking = false;
+                console.error('Speech synthesis error:', event);
+                updateTTSStatus("Error: " + event.error, false);
+                updateSpeechButtons();
+                showNotification("Speech error occurred");
+            };
+           
+            utterance.onpause = function() {
+                isSpeaking = false;
+                updateTTSStatus("Paused", false);
+                updateSpeechButtons();
+            };
+           
+            utterance.onresume = function() {
+                isSpeaking = true;
+                updateTTSStatus("Speaking...", true);
+                updateSpeechButtons();
+            };
+           
+            // Speak
             window.speechSynthesis.speak(utterance);
             currentSpeech = utterance;
-            showNotification("Reading text aloud...");
+           
+            updateTTSStatus("Starting speech...", true);
+            updateSpeechButtons();
+        }
+       
+        function pauseSpeaking() {
+            if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                window.speechSynthesis.pause();
+                isSpeaking = false;
+                updateTTSStatus("Paused", false);
+                updateSpeechButtons();
+            }
         }
        
         function stopSpeaking() {
             window.speechSynthesis.cancel();
-            currentSpeech = null;
+            isSpeaking = false;
+            updateTTSStatus("Ready to speak", false);
+            updateSpeechButtons();
+        }
+       
+        function updateSpeechButtons() {
+            const speakButton = document.getElementById('speakButton');
+            const stopButton = document.getElementById('stopButton');
+           
+            if (isSpeaking) {
+                speakButton.innerHTML = '<span class="icon">⏸️</span> Pause';
+                speakButton.onclick = pauseSpeaking;
+                stopButton.disabled = false;
+            } else {
+                speakButton.innerHTML = '<span class="icon">🔊</span> Read Aloud';
+                speakButton.onclick = startSpeaking;
+                stopButton.disabled = !window.speechSynthesis.speaking;
+            }
         }
 
         // Copy Text
@@ -598,6 +766,9 @@
            
             navigator.clipboard.writeText(text).then(() => {
                 showNotification("Text copied to clipboard!");
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                showNotification("Failed to copy text");
             });
         }
 
@@ -637,7 +808,7 @@
                             @page { margin: 2cm; }
                             body { font-family: Arial, sans-serif; line-height: 1.6; }
                             h1 { color: #4f46e5; border-bottom: 2px solid #4f46e5; padding-bottom: 10px; }
-                            .content { white-space: pre-wrap; margin: 20px 0; }
+                            .content { white-space: pre-wrap; margin: 20px 0; padding: 15px; background: #f9fafb; border-radius: 5px; }
                             .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
                         </style>
                     </head>
@@ -651,20 +822,37 @@
                     </html>
                     `;
                    
-                    // Use print to PDF approach
+                    // Open in new window and trigger print
                     const printWindow = window.open('', '_blank');
                     printWindow.document.write(pdfContent);
                     printWindow.document.close();
-                    printWindow.focus();
-                    printWindow.print();
-                    printWindow.close();
+                   
+                    // Add a small delay to ensure content loads
+                    setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                    }, 250);
                    
                     showNotification("PDF download started - Use Print > Save as PDF");
                     return;
                    
                 case 'doc':
                     filename = `$%7BcleanTitle%7D.doc`;
-                    content = `<html><head><meta charset="UTF-8"><title>$%7Btitle%7D</title></head><body><h1>$%7Btitle%7D</h1><pre>$%7Btext%7D</pre><p><i>Created: $%7Bnew Date().toLocaleDateString()%7D</i></p></body></html>`;
+                    content = `<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>$%7Btitle%7D</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; line-height: 1.5; }
+                            h1 { color: #4f46e5; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>$%7Btitle%7D</h1>
+                        <pre>$%7Btext%7D</pre>
+                        <p><i>Created: $%7Bnew Date().toLocaleDateString()%7D</i></p>
+                    </body>
+                    </html>`;
                     mimeType = 'application/msword';
                     break;
                    
@@ -698,17 +886,22 @@
             }
            
             // Create and download the file
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-           
-            showNotification(`$%7Bformat.toUpperCase()%7D file downloaded!`);
+            try {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+               
+                showNotification(`$%7Bformat.toUpperCase()%7D file downloaded!`);
+            } catch (error) {
+                console.error('Download error:', error);
+                showNotification("Download failed. Please try again.");
+            }
         }
 
         // Auto-clean on paste
@@ -716,8 +909,45 @@
             setTimeout(cleanText, 100);
         });
 
-        // Initialize counts
+        // Update slider values
+        document.getElementById('speedSlider').addEventListener('input', function() {
+            document.getElementById('speedValue').textContent = this.value;
+        });
+       
+        document.getElementById('pitchSlider').addEventListener('input', function() {
+            document.getElementById('pitchValue').textContent = this.value;
+        });
+
+        // Initialize
         updateCounts();
+        updateSpeechButtons();
+       
+        // Request microphone permission on iOS/Safari
+        if (/iPhone|iPad|iPod|Safari/.test(navigator.userAgent) && !/Chrome|Firefox|Edge/.test(navigator.userAgent)) {
+            document.addEventListener('click', function() {
+                if (!window.speechSynthesis.getVoices().length) {
+                    // Trigger voice loading
+                    const voices = window.speechSynthesis.getVoices();
+                    if (voices.length === 0) {
+                        setTimeout(() => {
+                            const voices = window.speechSynthesis.getVoices();
+                            console.log('Available voices:', voices.length);
+                        }, 1000);
+                    }
+                }
+            }, { once: true });
+        }
+
+        // Web App Manifest for PWA
+        const meta = document.createElement('meta');
+        meta.name = 'apple-mobile-web-app-capable';
+        meta.content = 'yes';
+        document.head.appendChild(meta);
+       
+        const meta2 = document.createElement('meta');
+        meta2.name = 'mobile-web-app-capable';
+        meta2.content = 'yes';
+        document.head.appendChild(meta2);
     </script>
 </body>
 </html>
