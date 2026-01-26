@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lens Text Cleaner & Reader</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; background: #f4f4f9; }
+        textarea { width: 100%; height: 150px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 5px; background: #007bff; color: white; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .speak-btn { background: #28a745; }
+        select { padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <h2>Lens Text Cleaner</h2>
+    <textarea id="inputText" placeholder="Paste text from Google Lens here..."></textarea>
+    
+    <div class="controls">
+        <button onclick="cleanText()">Clean Text</button>
+        <select id="langSelect">
+            <option value="ml-IN">Malayalam</option>
+            <option value="en-US">English</option>
+        </select>
+        <button class="speak-btn" onclick="speakText()">Read Aloud</button>
+    </div>
+
+    <h3>Cleaned Result:</h3>
+    <textarea id="outputText" readonly></textarea>
+
+    <script>
+        function cleanText() {
+            let text = document.getElementById('inputText').value;
+            // Removes multiple spaces, newlines, and tabs, replacing them with a single space
+            let cleaned = text.replace(/\s+/g, ' ').trim();
+            document.getElementById('outputText').value = cleaned;
+        }
+
+        function speakText() {
+            let text = document.getElementById('outputText').value;
+            if (!text) {
+                alert("Please clean some text first!");
+                return;
+            }
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = document.getElementById('langSelect').value;
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+
+</body>
+</html>
