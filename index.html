@@ -3,88 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bilingual OCR Assistant</title>
+    <title>PhD & Bank OCR Assistant</title>
     <style>
-        :root { --p: #4f46e5; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 10px; padding-bottom: 150px; }
-        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; }
-        #liveWordDisplay { background: #000; color: #10b981; padding: 20px; border-radius: 12px; text-align: center; font-size: 1.5rem; font-weight: bold; min-height: 40px; margin-bottom: 10px; }
-        textarea { width: 100%; height: 120px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; font-size: 16px; }
-        .dock { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 10px; border-top: 1px solid #ddd; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        button { padding: 12px 5px; border-radius: 8px; border: none; font-weight: bold; color: white; font-size: 0.8rem; cursor: pointer; }
-        .btn-blue { background: var(--p); } .btn-green { background: #10b981; } .btn-red { background: var(--danger); } .btn-gray { background: #64748b; }
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --ml-accent: #ff5722;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        .dark-mode {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --border: #334155;
+        }
+
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 10px;
+            padding-bottom: 140px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        #liveWordDisplay {
+            background: #000;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            min-height: 40px;
+            margin-bottom: 10px;
+            border: 2px solid var(--primary);
+            text-transform: uppercase;
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        button:active { transform: scale(0.95); }
+
+        .btn-clean { background: var(--secondary); color: white; }
+        .btn-del { background: var(--danger); color: white; }
+        .btn-en { background: var(--primary); color: white; }
+        .btn-ml { background: var(--ml-accent); color: white; }
+        .btn-clear { background: #64748b; color: white; }
+
+        .bottom-dock {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--card); padding: 10px;
+            border-top: 1px solid var(--border);
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); /* Added 4th column */
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .status-bar { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
     <div id="liveWordDisplay">READY</div>
 
-    <button onclick="unlockAudio()" id="unlockBtn" style="width:100%; background: orange; margin-bottom: 10px;">⚠️ TAP TO ENABLE SPEECH FIRST</button>
-
     <div class="card">
-        <textarea id="mainText" placeholder="Paste text here..."></textarea>
-        <input type="text" id="marker" placeholder="Marker (for Cut tools)" style="width:100%; margin-top:10px; padding:8px; border-radius:5px; border:1px solid #ccc;">
+        <div class="status-bar" id="status">System Standby</div>
+        <textarea id="mainText" placeholder="Paste OCR text here..."></textarea>
     </div>
 
     <div class="card">
-        <select id="vSelect" style="width:100%; padding:10px; border-radius:8px;"></select>
+        <div class="status-bar">ADVANCED CUT TOOLS</div>
+        <input type="text" id="cutMarker" placeholder="Marker word (e.g. @)" style="margin-bottom:8px;">
+        <div class="tool-grid">
+            <button class="btn-del" onclick="deleteBefore()">✂️ Before</button>
+            <button class="btn-del" onclick="deleteAfter()">✂️ After</button>
+        </div>
+        <div class="tool-grid" style="margin-top:8px;">
+            <input type="text" id="startChar" placeholder="Start {">
+            <input type="text" id="endChar" placeholder="End }">
+        </div>
+        <button class="btn-del" style="width:100%; margin-top:8px;" onclick="deleteBetween()">Delete Between</button>
     </div>
 
-    <div class="dock">
-        <button class="btn-gray" onclick="clearAll()">CLR</button>
-        <button class="btn-green" onclick="smartClean()">CLN</button>
-        <button class="btn-blue" onclick="speak('en')">EN</button>
-        <button class="btn-red" onclick="speak('ml')">ML</button>
+    <div class="card">
+        <div class="status-bar">VOICE PREFERENCES</div>
+        <select id="voiceSelect" style="width:100%; padding:10px; border-radius:8px; margin-bottom:10px;"></select>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span>Speed:</span>
+            <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1" style="flex:1">
+        </div>
+    </div>
+
+    <div class="bottom-dock">
+        <button class="btn-clear" onclick="clearAll()">🗑️ CLR</button>
+        <button class="btn-clean" onclick="smartClean()">🧹 CLN</button>
+        <button class="btn-en" onclick="speak('en')">🗣️ EN</button>
+        <button class="btn-ml" onclick="speak('ml')">🗣️ ML</button>
     </div>
 
     <script>
         const synth = window.speechSynthesis;
+        const mainText = document.getElementById('mainText');
+        const liveWord = document.getElementById('liveWordDisplay');
+        const status = document.getElementById('status');
         let voices = [];
-
-        function unlockAudio() {
-            // "Wakes up" the engine by speaking a silent string
-            const u = new SpeechSynthesisUtterance("System Ready");
-            u.volume = 0;
-            synth.speak(u);
-            document.getElementById('unlockBtn').style.display = 'none';
-        }
 
         function loadVoices() {
             voices = synth.getVoices().filter(v => v.lang.startsWith('en') || v.lang.startsWith('ml'));
-            document.getElementById('vSelect').innerHTML = voices.map(v => `<option value="${v.name}">${v.name}</option>`).join('');
+            const select = document.getElementById('voiceSelect');
+            select.innerHTML = voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
         }
         if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = loadVoices; }
 
-        function speak(lang) {
+        function speak(langCode) {
             synth.cancel();
-            const text = document.getElementById('mainText').value;
+            const wakeUp = new SpeechSynthesisUtterance("");
+            synth.speak(wakeUp);
+
+            const text = mainText.value;
             if(!text) return;
 
-            const u = new SpeechSynthesisUtterance(text);
-            const vName = document.getElementById('vSelect').value;
-            u.voice = voices.find(v => v.name === vName) || voices.find(v => v.lang.startsWith(lang));
+            const utterance = new SpeechSynthesisUtterance(text);
+            const selectedVoice = voices.find(v => v.name === document.getElementById('voiceSelect').value) || 
+                                 voices.find(v => v.lang.startsWith(langCode));
             
-            // Boundary event (Teleprompter)
-            u.onboundary = (e) => {
-                if (e.name === 'word') {
-                    document.getElementById('liveWordDisplay').innerText = text.substr(e.charIndex, e.charLength);
+            utterance.voice = selectedVoice;
+            utterance.rate = document.getElementById('rate').value;
+
+            utterance.onstart = () => { status.textContent = "SPEECH ACTIVE"; };
+            utterance.onboundary = (event) => {
+                if (event.name === 'word') {
+                    liveWord.innerText = text.substr(event.charIndex, event.charLength);
                 }
             };
-            
-            u.onend = () => { document.getElementById('liveWordDisplay').innerText = "DONE"; };
-            synth.speak(u);
+            utterance.onend = () => { 
+                status.textContent = "FINISHED"; 
+                liveWord.innerText = "DONE";
+            };
+            synth.speak(utterance);
         }
 
+        // --- NEW CLEAR FUNCTION ---
         function clearAll() {
-            document.getElementById('mainText').value = '';
-            document.getElementById('liveWordDisplay').innerText = 'READY';
+            mainText.value = '';
+            liveWord.innerText = 'READY';
+            status.textContent = 'CLEARED';
+            document.getElementById('cutMarker').value = '';
+            document.getElementById('startChar').value = '';
+            document.getElementById('endChar').value = '';
             synth.cancel();
         }
 
         function smartClean() {
-            let t = document.getElementById('mainText').value;
-            t = t.replace(/\s+/g, ' ').replace(/(\d)[Oo](\d)/g, '$10$2').replace(/([A-Z])1([A-Z])/g, '$1I$2');
-            document.getElementById('mainText').value = t.trim();
+            let t = mainText.value;
+            t = t.replace(/\s+/g, ' '); 
+            t = t.replace(/(\d)[Oo](\d)/g, '$10$2'); 
+            t = t.replace(/([A-Z])1([A-Z])/g, '$1I$2'); 
+            t = t.replace(/([a-z])1([a-z])/g, '$1l$2'); 
+            t = t.replace(/([\u0d00-\u0d7f])\s([\u0d3e-\u0d4d])/g, '$1$2');
+            mainText.value = t.trim();
+            status.textContent = "CLEANED";
+        }
+
+        function deleteBefore() {
+            const m = document.getElementById('cutMarker').value;
+            const i = mainText.value.indexOf(m);
+            if (i !== -1) mainText.value = mainText.value.substring(i);
+        }
+
+        function deleteAfter() {
+            const m = document.getElementById('cutMarker').value;
+            const i = mainText.value.indexOf(m);
+            if (i !== -1) mainText.value = mainText.value.substring(0, i + m.length);
+        }
+
+        function deleteBetween() {
+            const s = document.getElementById('startChar').value;
+            const e = document.getElementById('endChar').value;
+            if(!s || !e) return;
+            const regex = new RegExp(`${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*?${e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gs');
+            mainText.value = mainText.value.replace(regex, '');
         }
     </script>
 </body>
