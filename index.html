@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Scholar OCR & Speech</title>
+    <title>PhD & Bank OCR Assistant</title>
     <style>
         :root {
             --primary: #4f46e5;
             --secondary: #10b981;
             --danger: #ef4444;
             --ml-accent: #ff5722;
-            --bg: #f3f4f6;
+            --bg: #f8fafc;
             --card: #ffffff;
-            --text: #1f2937;
-            --border: #e5e7eb;
-            --radius: 12px;
+            --text: #1e293b;
+            --border: #e2e8f0;
         }
 
         .dark-mode {
-            --bg: #111827;
-            --card: #1f2937;
-            --text: #f9fafb;
-            --border: #374151;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --border: #334155;
         }
 
         body {
@@ -30,116 +29,134 @@
             color: var(--text);
             margin: 0;
             padding: 10px;
-            padding-bottom: 120px;
+            padding-bottom: 140px;
         }
 
         .card {
             background: var(--card);
-            border-radius: var(--radius);
+            border-radius: 12px;
             padding: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border: 1px solid var(--border);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        h3 { margin-top: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        /* Teleprompter Style Word Tracker */
+        #liveWordDisplay {
+            background: #000;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            min-height: 40px;
+            margin-bottom: 10px;
+            border: 2px solid var(--primary);
+            text-transform: uppercase;
+        }
 
         textarea {
             width: 100%;
-            height: 150px;
+            height: 140px;
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 12px;
             font-size: 16px;
             background: var(--bg);
             color: var(--text);
-            margin-bottom: 10px;
         }
 
-        .tool-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-        input[type="text"] { 
-            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--bg); color: var(--text);
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         button {
-            padding: 10px 15px; border-radius: 8px; border: none;
-            font-weight: 600; cursor: pointer; font-size: 0.9rem;
-        }
-
-        .btn-blue { background: var(--primary); color: white; }
-        .btn-green { background: var(--secondary); color: white; }
-        .btn-red { background: var(--danger); color: white; }
-        .btn-ml { background: var(--ml-accent); color: white; }
-
-        /* Word Tracker Visualizer */
-        #wordTracker {
-            padding: 15px;
-            background: #000;
-            color: #fff;
+            padding: 12px;
             border-radius: 8px;
-            min-height: 50px;
-            font-size: 1.2rem;
-            line-height: 1.4;
-            margin-top: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
         }
-        .highlight-word { background: #ffeb3b; color: #000; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
+
+        button:active { transform: scale(0.95); }
+
+        .btn-clean { background: var(--secondary); color: white; }
+        .btn-del { background: var(--danger); color: white; }
+        .btn-en { background: var(--primary); color: white; }
+        .btn-ml { background: var(--ml-accent); color: white; }
 
         .bottom-dock {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: var(--card); padding: 15px;
             border-top: 1px solid var(--border);
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+            z-index: 1000;
         }
+
+        .status-bar { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
+    <div id="liveWordDisplay">READY</div>
+
     <div class="card">
-        <h3>📥 Input / Output</h3>
-        <textarea id="mainText" placeholder="Paste OCR here..."></textarea>
-        
-        <div id="wordTracker">Words being said will appear here...</div>
+        <div class="status-bar" id="status">System Standby</div>
+        <textarea id="mainText" placeholder="Paste OCR text here..."></textarea>
     </div>
 
     <div class="card">
-        <h3>✂️ Advanced Cleaning</h3>
-        <div class="tool-row">
-            <input type="text" id="cutMarker" placeholder="Marker (e.g. @ or Chapter)">
-            <button class="btn-red" onclick="deleteBefore()">Del Before</button>
-            <button class="btn-red" onclick="deleteAfter()">Del After</button>
+        <div class="status-bar">ADVANCED CUT TOOLS</div>
+        <input type="text" id="cutMarker" placeholder="Marker word (e.g. Chapter or @)" style="margin-bottom:8px;">
+        <div class="tool-grid">
+            <button class="btn-del" onclick="deleteBefore()">✂️ Before</button>
+            <button class="btn-del" onclick="deleteAfter()">✂️ After</button>
         </div>
-        <div class="tool-row">
-            <input type="text" id="startChar" placeholder="Start (e.g. { )" style="width: 60px;">
-            <input type="text" id="endChar" placeholder="End (e.g. } )" style="width: 60px;">
-            <button class="btn-red" style="flex:1" onclick="deleteBetween()">Delete Between</button>
+        <div class="tool-grid" style="margin-top:8px;">
+            <input type="text" id="startChar" placeholder="Start {">
+            <input type="text" id="endChar" placeholder="End }">
         </div>
+        <button class="btn-del" style="width:100%; margin-top:8px;" onclick="deleteBetween()">Delete Everything Between</button>
     </div>
 
     <div class="card">
-        <h3>🎙️ Voice Settings</h3>
-        <div class="tool-row">
-            <select id="voiceSelect" style="flex:1; padding:10px; border-radius:8px;"></select>
-        </div>
-        <div class="tool-row">
+        <div class="status-bar">VOICE PREFERENCES</div>
+        <select id="voiceSelect" style="width:100%; padding:10px; border-radius:8px; margin-bottom:10px;"></select>
+        <div style="display:flex; align-items:center; gap:10px;">
             <span>Speed:</span>
             <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1" style="flex:1">
         </div>
     </div>
 
     <div class="bottom-dock">
-        <button class="btn-green" onclick="smartClean()">Clean OCR</button>
-        <button class="btn-blue" onclick="speak('en')">Speak EN</button>
-        <button class="btn-ml" onclick="speak('ml')">Speak ML</button>
+        <button class="btn-clean" onclick="smartClean()">CLEAN</button>
+        <button class="btn-en" onclick="speak('en')">READ EN</button>
+        <button class="btn-ml" onclick="speak('ml')">READ ML</button>
     </div>
 
     <script>
         const synth = window.speechSynthesis;
         const mainText = document.getElementById('mainText');
-        const tracker = document.getElementById('wordTracker');
+        const liveWord = document.getElementById('liveWordDisplay');
+        const status = document.getElementById('status');
         let voices = [];
 
-        // Load Voices
+        // LOAD VOICES - Strictly English and Malayalam
         function loadVoices() {
             voices = synth.getVoices().filter(v => v.lang.startsWith('en') || v.lang.startsWith('ml'));
             const select = document.getElementById('voiceSelect');
@@ -147,65 +164,77 @@
         }
         if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = loadVoices; }
 
-        // Speech with Word Tracking
+        // SPEECH ENGINE WITH WORD TRACKER
         function speak(langCode) {
-            if (synth.speaking) synth.cancel();
+            // WebIntoApp/Comet Fix: Cancel and Reset
+            synth.cancel();
+
+            // Initialize audio context for WebViews
+            const wakeUp = new SpeechSynthesisUtterance("");
+            synth.speak(wakeUp);
+
             const text = mainText.value;
+            if(!text) return;
+
             const utterance = new SpeechSynthesisUtterance(text);
-            
             const selectedVoice = voices.find(v => v.name === document.getElementById('voiceSelect').value) || 
                                  voices.find(v => v.lang.startsWith(langCode));
             
             utterance.voice = selectedVoice;
             utterance.rate = document.getElementById('rate').value;
 
-            // TRACKING LOGIC
+            utterance.onstart = () => { status.textContent = "SPEECH ACTIVE"; };
+            
+            // THE WORD TRACKER
             utterance.onboundary = (event) => {
                 if (event.name === 'word') {
                     const word = text.substr(event.charIndex, event.charLength);
-                    const before = text.substr(0, event.charIndex).split(' ').slice(-3).join(' ');
-                    const after = text.substr(event.charIndex + event.charLength, 20);
-                    
-                    tracker.innerHTML = `...${before} <span class="highlight-word">${word}</span> ${after}...`;
+                    liveWord.innerText = word;
                 }
             };
 
-            utterance.onend = () => { tracker.innerHTML = "Finished Reading."; };
+            utterance.onend = () => { 
+                status.textContent = "FINISHED"; 
+                liveWord.innerText = "DONE";
+            };
+
             synth.speak(utterance);
         }
 
-        // --- Cleaning Functions ---
-        
+        // --- CLEANING LOGIC ---
+
         function smartClean() {
             let t = mainText.value;
-            t = t.replace(/\s+/g, ' '); // Spaces
-            t = t.replace(/(\d)[Oo](\d)/g, '$10$2'); // Years
-            t = t.replace(/([A-Z])1([A-Z])/g, '$1I$2'); // Uppercase I
-            t = t.replace(/([a-z])1([a-z])/g, '$1l$2'); // Lowercase L
+            // Your original OCR logic
+            t = t.replace(/\s+/g, ' '); 
+            t = t.replace(/(\d)[Oo](\d)/g, '$10$2'); 
+            t = t.replace(/([A-Z])1([A-Z])/g, '$1I$2'); 
+            t = t.replace(/([a-z])1([a-z])/g, '$1l$2'); 
+            // Malayalam matra fix
+            t = t.replace(/([\u0d00-\u0d7f])\s([\u0d3e-\u0d4d])/g, '$1$2');
             mainText.value = t.trim();
+            status.textContent = "CLEANED";
         }
 
         function deleteBefore() {
-            const marker = document.getElementById('cutMarker').value;
-            const idx = mainText.value.indexOf(marker);
-            if (idx !== -1) mainText.value = mainText.value.substring(idx);
+            const m = document.getElementById('cutMarker').value;
+            const i = mainText.value.indexOf(m);
+            if (i !== -1) mainText.value = mainText.value.substring(i);
         }
 
         function deleteAfter() {
-            const marker = document.getElementById('cutMarker').value;
-            const idx = mainText.value.indexOf(marker);
-            if (idx !== -1) mainText.value = mainText.value.substring(0, idx + marker.length);
+            const m = document.getElementById('cutMarker').value;
+            const i = mainText.value.indexOf(m);
+            if (i !== -1) mainText.value = mainText.value.substring(0, i + m.length);
         }
 
         function deleteBetween() {
-            const start = document.getElementById('startChar').value;
-            const end = document.getElementById('endChar').value;
-            if(!start || !end) return;
-            const regex = new RegExp(`${escapeReg(start)}.*?${escapeReg(end)}`, 'gs');
+            const s = document.getElementById('startChar').value;
+            const e = document.getElementById('endChar').value;
+            if(!s || !e) return;
+            const regex = new RegExp(`${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*?${e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gs');
             mainText.value = mainText.value.replace(regex, '');
         }
-
-        function escapeReg(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
     </script>
 </body>
 </html>
