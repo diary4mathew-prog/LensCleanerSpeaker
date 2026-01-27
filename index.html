@@ -41,7 +41,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        /* Teleprompter Style Word Tracker */
         #liveWordDisplay {
             background: #000;
             color: #10b981;
@@ -90,7 +89,10 @@
             border: none;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
 
         button:active { transform: scale(0.95); }
@@ -99,12 +101,15 @@
         .btn-del { background: var(--danger); color: white; }
         .btn-en { background: var(--primary); color: white; }
         .btn-ml { background: var(--ml-accent); color: white; }
+        .btn-clear { background: #64748b; color: white; }
 
         .bottom-dock {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: var(--card); padding: 15px;
+            background: var(--card); padding: 10px;
             border-top: 1px solid var(--border);
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); /* Added 4th column */
+            gap: 8px;
             z-index: 1000;
         }
 
@@ -122,7 +127,7 @@
 
     <div class="card">
         <div class="status-bar">ADVANCED CUT TOOLS</div>
-        <input type="text" id="cutMarker" placeholder="Marker word (e.g. Chapter or @)" style="margin-bottom:8px;">
+        <input type="text" id="cutMarker" placeholder="Marker word (e.g. @)" style="margin-bottom:8px;">
         <div class="tool-grid">
             <button class="btn-del" onclick="deleteBefore()">✂️ Before</button>
             <button class="btn-del" onclick="deleteAfter()">✂️ After</button>
@@ -131,7 +136,7 @@
             <input type="text" id="startChar" placeholder="Start {">
             <input type="text" id="endChar" placeholder="End }">
         </div>
-        <button class="btn-del" style="width:100%; margin-top:8px;" onclick="deleteBetween()">Delete Everything Between</button>
+        <button class="btn-del" style="width:100%; margin-top:8px;" onclick="deleteBetween()">Delete Between</button>
     </div>
 
     <div class="card">
@@ -144,9 +149,10 @@
     </div>
 
     <div class="bottom-dock">
-        <button class="btn-clean" onclick="smartClean()">CLEAN</button>
-        <button class="btn-en" onclick="speak('en')">READ EN</button>
-        <button class="btn-ml" onclick="speak('ml')">READ ML</button>
+        <button class="btn-clear" onclick="clearAll()">🗑️ CLR</button>
+        <button class="btn-clean" onclick="smartClean()">🧹 CLN</button>
+        <button class="btn-en" onclick="speak('en')">🗣️ EN</button>
+        <button class="btn-ml" onclick="speak('ml')">🗣️ ML</button>
     </div>
 
     <script>
@@ -156,7 +162,6 @@
         const status = document.getElementById('status');
         let voices = [];
 
-        // LOAD VOICES - Strictly English and Malayalam
         function loadVoices() {
             voices = synth.getVoices().filter(v => v.lang.startsWith('en') || v.lang.startsWith('ml'));
             const select = document.getElementById('voiceSelect');
@@ -164,12 +169,8 @@
         }
         if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = loadVoices; }
 
-        // SPEECH ENGINE WITH WORD TRACKER
         function speak(langCode) {
-            // WebIntoApp/Comet Fix: Cancel and Reset
             synth.cancel();
-
-            // Initialize audio context for WebViews
             const wakeUp = new SpeechSynthesisUtterance("");
             synth.speak(wakeUp);
 
@@ -184,33 +185,35 @@
             utterance.rate = document.getElementById('rate').value;
 
             utterance.onstart = () => { status.textContent = "SPEECH ACTIVE"; };
-            
-            // THE WORD TRACKER
             utterance.onboundary = (event) => {
                 if (event.name === 'word') {
-                    const word = text.substr(event.charIndex, event.charLength);
-                    liveWord.innerText = word;
+                    liveWord.innerText = text.substr(event.charIndex, event.charLength);
                 }
             };
-
             utterance.onend = () => { 
                 status.textContent = "FINISHED"; 
                 liveWord.innerText = "DONE";
             };
-
             synth.speak(utterance);
         }
 
-        // --- CLEANING LOGIC ---
+        // --- NEW CLEAR FUNCTION ---
+        function clearAll() {
+            mainText.value = '';
+            liveWord.innerText = 'READY';
+            status.textContent = 'CLEARED';
+            document.getElementById('cutMarker').value = '';
+            document.getElementById('startChar').value = '';
+            document.getElementById('endChar').value = '';
+            synth.cancel();
+        }
 
         function smartClean() {
             let t = mainText.value;
-            // Your original OCR logic
             t = t.replace(/\s+/g, ' '); 
             t = t.replace(/(\d)[Oo](\d)/g, '$10$2'); 
             t = t.replace(/([A-Z])1([A-Z])/g, '$1I$2'); 
             t = t.replace(/([a-z])1([a-z])/g, '$1l$2'); 
-            // Malayalam matra fix
             t = t.replace(/([\u0d00-\u0d7f])\s([\u0d3e-\u0d4d])/g, '$1$2');
             mainText.value = t.trim();
             status.textContent = "CLEANED";
