@@ -2,1051 +2,210 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart OCR Text Cleaner</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✂️</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Scholar OCR & Speech</title>
     <style>
         :root {
             --primary: #4f46e5;
-            --primary-dark: #4338ca;
-            --secondary: #8b5cf6;
-            --success: #10b981;
+            --secondary: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f9fafb;
-            --bg-tertiary: #f3f4f6;
+            --ml-accent: #ff5722;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
             --border: #e5e7eb;
-            --radius: 10px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --transition: all 0.2s ease;
+            --radius: 12px;
         }
 
         .dark-mode {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #a78bfa;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --text-primary: #f9fafb;
-            --text-secondary: #d1d5db;
-            --bg-primary: #111827;
-            --bg-secondary: #1f2937;
-            --bg-tertiary: #374151;
-            --border: #4b5563;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --bg: #111827;
+            --card: #1f2937;
+            --text: #f9fafb;
+            --border: #374151;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            transition: var(--transition);
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        h1 {
-            font-size: 2rem;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .tagline {
-            color: var(--text-secondary);
-            font-size: 1rem;
+            font-family: -apple-system, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 10px;
+            padding-bottom: 120px;
         }
 
         .card {
-            background: var(--bg-secondary);
+            background: var(--card);
             border-radius: var(--radius);
-            border: 1px solid var(--border);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        h2 {
+            padding: 15px;
             margin-bottom: 15px;
-            color: var(--text-primary);
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        h3 {
-            margin: 20px 0 10px;
-            color: var(--text-primary);
-            font-size: 1.1rem;
-        }
+        h3 { margin-top: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
 
         textarea {
             width: 100%;
-            min-height: 150px;
-            border-radius: var(--radius);
+            height: 150px;
             border: 1px solid var(--border);
-            padding: 15px;
-            font-size: 1rem;
-            font-family: inherit;
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            transition: var(--transition);
-            resize: vertical;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            background: var(--bg);
+            color: var(--text);
+            margin-bottom: 10px;
         }
 
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        textarea#outputText {
-            min-height: 200px;
-            background: var(--bg-primary);
-            border: 2px solid var(--border);
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
+        .tool-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        input[type="text"] { 
+            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--text);
         }
 
         button {
-            padding: 12px 20px;
-            border-radius: var(--radius);
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.95rem;
-            user-select: none;
+            padding: 10px 15px; border-radius: 8px; border: none;
+            font-weight: 600; cursor: pointer; font-size: 0.9rem;
         }
 
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
+        .btn-blue { background: var(--primary); color: white; }
+        .btn-green { background: var(--secondary); color: white; }
+        .btn-red { background: var(--danger); color: white; }
+        .btn-ml { background: var(--ml-accent); color: white; }
 
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background: var(--primary-dark);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        .option-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .option-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .option-item label {
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
-
-        .text-tool-section {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius);
+        /* Word Tracker Visualizer */
+        #wordTracker {
             padding: 15px;
-            margin: 20px 0;
-            border: 1px solid var(--border);
-        }
-
-        .tool-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            min-width: 200px;
-            padding: 12px 15px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            margin: 10px 0;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-        }
-
-        .radio-option input[type="radio"] {
-            accent-color: var(--primary);
-        }
-
-        .radio-option label {
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-
-        .char-count {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .word-count {
-            color: var(--success);
-            font-weight: 600;
-        }
-
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            background: #000;
+            color: #fff;
+            border-radius: 8px;
+            min-height: 50px;
             font-size: 1.2rem;
-            z-index: 100;
-        }
-
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background: var(--success);
-            color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            transform: translateY(100px);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            max-width: 350px;
-        }
-
-        .notification.show {
-            transform: translateY(0);
-        }
-
-        .notification.error {
-            background: var(--danger);
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .icon {
-            font-size: 1.1rem;
-        }
-
-        .highlight {
-            background-color: rgba(255, 255, 0, 0.3);
-            padding: 2px;
-            border-radius: 3px;
-        }
-
-        .text-preview {
-            max-height: 100px;
-            overflow-y: auto;
-            background: var(--bg-tertiary);
-            padding: 10px;
-            border-radius: var(--radius);
+            line-height: 1.4;
             margin-top: 10px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
         }
+        .highlight-word { background: #ffeb3b; color: #000; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
 
-        @media (max-width: 768px) {
-            .tool-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-           
-            input[type="text"] {
-                min-width: 100%;
-            }
-           
-            .option-group {
-                grid-template-columns: 1fr;
-            }
+        .bottom-dock {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--card); padding: 15px;
+            border-top: 1px solid var(--border);
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
         }
     </style>
 </head>
 <body>
-    <div class="theme-toggle" id="themeToggle">
-        <span class="icon">🌙</span>
-    </div>
 
-    <header>
-        <h1>✂️ Smart OCR Text Cleaner</h1>
-        <p class="tagline">Clean OCR text from Google Lens + Advanced text manipulation tools</p>
-    </header>
-
-    <!-- Input Section -->
     <div class="card">
-        <h2><span class="icon">📥</span> Input Text</h2>
-        <textarea id="inputText" placeholder="Paste your text from Google Lens here..."></textarea>
-        <div class="stats">
-            <div>Characters: <span class="char-count" id="inputCharCount">0</span></div>
-            <div>Words: <span class="word-count" id="inputWordCount">0</span></div>
-        </div>
-
-        <h3>Cleaning Options</h3>
-        <div class="option-group">
-            <div class="option-item">
-                <input type="checkbox" id="removeSpaces" checked>
-                <label for="removeSpaces">Remove extra spaces</label>
-            </div>
-            <div class="option-item">
-                <input type="checkbox" id="removeBreaks" checked>
-                <label for="removeBreaks">Remove line breaks</label>
-            </div>
-            <div class="option-item">
-                <input type="checkbox" id="fixOCR" checked>
-                <label for="fixOCR">Fix OCR errors (0→O, 1→l, 5→S)</label>
-            </div>
-            <div class="option-item">
-                <input type="checkbox" id="capitalize" checked>
-                <label for="capitalize">Capitalize sentences</label>
-            </div>
-            <div class="option-item">
-                <input type="checkbox" id="removeDuplicates">
-                <label for="removeDuplicates">Remove duplicate lines</label>
-            </div>
-            <div class="option-item">
-                <input type="checkbox" id="paragraphFormat">
-                <label for="paragraphFormat">Format as paragraphs</label>
-            </div>
-        </div>
-
-        <div class="controls">
-            <button class="btn-primary" onclick="cleanText()">
-                <span class="icon">🧹</span> Clean Text
-            </button>
-            <button class="btn-danger" onclick="clearAll()">
-                <span class="icon">🗑️</span> Clear All
-            </button>
-        </div>
-    </div>
-
-    <!-- Text Manipulation Tool -->
-    <div class="card">
-        <h2><span class="icon">✂️</span> Text Manipulation Tool</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.95rem;">
-            Enter a character/word to delete text before or after it
-        </p>
-       
-        <div class="text-tool-section">
-            <div class="tool-row">
-                <input type="text" id="cutText" placeholder="Enter character or word to cut from (e.g., @, -, Chapter)">
-                <button class="btn-warning" onclick="highlightText()">
-                    <span class="icon">🔍</span> Find & Highlight
-                </button>
-            </div>
-           
-            <div class="radio-group">
-                <div class="radio-option">
-                    <input type="radio" id="deleteBefore" name="deleteOption" checked>
-                    <label for="deleteBefore">Delete text BEFORE this</label>
-                </div>
-                <div class="radio-option">
-                    <input type="radio" id="deleteAfter" name="deleteOption">
-                    <label for="deleteAfter">Delete text AFTER this</label>
-                </div>
-            </div>
-           
-            <div class="tool-row">
-                <button class="btn-danger" onclick="cutText()">
-                    <span class="icon">✂️</span> Cut Selected Text
-                </button>
-                <button class="btn-primary" onclick="resetCut()">
-                    <span class="icon">↺</span> Reset
-                </button>
-            </div>
-           
-            <div class="text-preview" id="cutPreview">
-                No text selected. Enter a character/word and click "Find & Highlight"
-            </div>
-        </div>
-       
-        <div class="controls">
-            <button class="btn-success" onclick="copyToClipboard()">
-                <span class="icon">📋</span> Copy Cleaned Text
-            </button>
-            <button class="btn-primary" onclick="swapText()">
-                <span class="icon">🔄</span> Swap Input ↔ Output
-            </button>
-        </div>
-    </div>
-
-    <!-- Delete Text Between Characters Tool -->
-    <div class="card">
-        <h2><span class="icon">🔗</span> Delete Text Between Characters</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.95rem;">
-            Enter start and end characters to delete text between them (e.g., { }, ( ), ` `)
-        </p>
+        <h3>📥 Input / Output</h3>
+        <textarea id="mainText" placeholder="Paste OCR here..."></textarea>
         
-        <div class="text-tool-section">
-            <div class="tool-row">
-                <input type="text" id="betweenStart" placeholder="Start character (e.g., {, (, `)" style="flex: 1;">
-                <input type="text" id="betweenEnd" placeholder="End character (e.g., }, ), `)" style="flex: 1;">
-            </div>
-            
-            <div class="option-item" style="margin: 10px 0;">
-                <input type="checkbox" id="keepDelimiters">
-                <label for="keepDelimiters">Keep start and end characters (only remove content between)</label>
-            </div>
-            
-            <div class="tool-row">
-                <button class="btn-warning" onclick="highlightBetween()">
-                    <span class="icon">🔍</span> Find & Highlight
-                </button>
-                <button class="btn-danger" onclick="deleteTextBetween()">
-                    <span class="icon">✂️</span> Delete Text Between
-                </button>
-                <button class="btn-primary" onclick="document.getElementById('betweenPreview').textContent = 'No text selected. Enter start and end characters and click \"Find & Highlight\"'; document.getElementById('betweenStart').value = ''; document.getElementById('betweenEnd').value = '';">
-                    <span class="icon">↺</span> Reset
-                </button>
-            </div>
-            
-            <div class="text-preview" id="betweenPreview">
-                No text selected. Enter start and end characters and click "Find & Highlight"
-            </div>
-            
-            <div style="margin-top: 15px; padding: 10px; background: var(--bg-secondary); border-radius: var(--radius);">
-                <h4 style="margin-bottom: 8px; font-size: 0.9rem; color: var(--text-primary);">Quick Examples:</h4>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn-primary" onclick="document.getElementById('betweenStart').value='{'; document.getElementById('betweenEnd').value='}'" style="padding: 5px 10px; font-size: 0.8rem;">
-                        {}
-                    </button>
-                    <button class="btn-primary" onclick="document.getElementById('betweenStart').value='('; document.getElementById('betweenEnd').value=')'" style="padding: 5px 10px; font-size: 0.8rem;">
-                        ()
-                    </button>
-                    <button class="btn-primary" onclick="document.getElementById('betweenStart').value='['; document.getElementById('betweenEnd').value=']'" style="padding: 5px 10px; font-size: 0.8rem;">
-                        []
-                    </button>
-                    <button class="btn-primary" onclick="document.getElementById('betweenStart').value='`'; document.getElementById('betweenEnd').value='`'" style="padding: 5px 10px; font-size: 0.8rem;">
-                        ` `
-                    </button>
-                    <button class="btn-primary" onclick="document.getElementById('betweenStart').value='<'; document.getElementById('betweenEnd').value='>'" style="padding: 5px 10px; font-size: 0.8rem;">
-                        &lt;&gt;
-                    </button>
-                </div>
-            </div>
-        </div>
+        <div id="wordTracker">Words being said will appear here...</div>
     </div>
 
-    <!-- Output Section -->
     <div class="card">
-        <h2><span class="icon">📄</span> Cleaned Result</h2>
-        <textarea id="outputText" readonly placeholder="Cleaned text will appear here..."></textarea>
-        <div class="stats">
-            <div>Characters: <span class="char-count" id="outputCharCount">0</span></div>
-            <div>Words: <span class="word-count" id="outputWordCount">0</span></div>
+        <h3>✂️ Advanced Cleaning</h3>
+        <div class="tool-row">
+            <input type="text" id="cutMarker" placeholder="Marker (e.g. @ or Chapter)">
+            <button class="btn-red" onclick="deleteBefore()">Del Before</button>
+            <button class="btn-red" onclick="deleteAfter()">Del After</button>
+        </div>
+        <div class="tool-row">
+            <input type="text" id="startChar" placeholder="Start (e.g. { )" style="width: 60px;">
+            <input type="text" id="endChar" placeholder="End (e.g. } )" style="width: 60px;">
+            <button class="btn-red" style="flex:1" onclick="deleteBetween()">Delete Between</button>
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="card">
-        <h2><span class="icon">⚡</span> Quick Actions</h2>
-        <div class="controls">
-            <button class="btn-primary" onclick="removeExtraSpaces()">
-                <span class="icon">␣</span> Fix Spaces Only
-            </button>
-            <button class="btn-primary" onclick="fixLineBreaks()">
-                <span class="icon">↵</span> Fix Line Breaks Only
-            </button>
-            <button class="btn-primary" onclick="removeEmptyLines()">
-                <span class="icon">📝</span> Remove Empty Lines
-            </button>
-            <button class="btn-danger" onclick="clearOutput()">
-                <span class="icon">✕</span> Clear Output Only
-            </button>
+        <h3>🎙️ Voice Settings</h3>
+        <div class="tool-row">
+            <select id="voiceSelect" style="flex:1; padding:10px; border-radius:8px;"></select>
+        </div>
+        <div class="tool-row">
+            <span>Speed:</span>
+            <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1" style="flex:1">
         </div>
     </div>
 
-    <footer>
-        <p>Smart OCR Text Cleaner • All processing happens in your browser</p>
-        <p>Perfect for cleaning scanned documents, photos, and OCR text</p>
-    </footer>
-
-    <div class="notification" id="notification">
-        <span class="icon">✅</span>
-        <span id="notificationText">Operation completed successfully!</span>
+    <div class="bottom-dock">
+        <button class="btn-green" onclick="smartClean()">Clean OCR</button>
+        <button class="btn-blue" onclick="speak('en')">Speak EN</button>
+        <button class="btn-ml" onclick="speak('ml')">Speak ML</button>
     </div>
 
     <script>
-        // Theme Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            themeToggle.innerHTML = isDark ? '<span class="icon">☀️</span>' : '<span class="icon">🌙</span>';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
+        const synth = window.speechSynthesis;
+        const mainText = document.getElementById('mainText');
+        const tracker = document.getElementById('wordTracker');
+        let voices = [];
 
-        // Load saved theme
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeToggle.innerHTML = '<span class="icon">☀️</span>';
+        // Load Voices
+        function loadVoices() {
+            voices = synth.getVoices().filter(v => v.lang.startsWith('en') || v.lang.startsWith('ml'));
+            const select = document.getElementById('voiceSelect');
+            select.innerHTML = voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
         }
+        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = loadVoices; }
 
-        // Notification System
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            document.getElementById('notificationText').textContent = message;
-            notification.className = 'notification';
-            notification.classList.add(type);
-            notification.classList.add('show');
-           
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
+        // Speech with Word Tracking
+        function speak(langCode) {
+            if (synth.speaking) synth.cancel();
+            const text = mainText.value;
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            const selectedVoice = voices.find(v => v.name === document.getElementById('voiceSelect').value) || 
+                                 voices.find(v => v.lang.startsWith(langCode));
+            
+            utterance.voice = selectedVoice;
+            utterance.rate = document.getElementById('rate').value;
 
-        // Update character counts
-        function updateCounts() {
-            const inputText = document.getElementById('inputText').value;
-            const outputText = document.getElementById('outputText').value;
-           
-            document.getElementById('inputCharCount').textContent = inputText.length;
-            document.getElementById('inputWordCount').textContent = inputText.trim() ? inputText.trim().split(/\s+/).length : 0;
-           
-            document.getElementById('outputCharCount').textContent = outputText.length;
-            document.getElementById('outputWordCount').textContent = outputText.trim() ? outputText.trim().split(/\s+/).length : 0;
-        }
-
-        document.getElementById('inputText').addEventListener('input', updateCounts);
-        document.getElementById('outputText').addEventListener('input', updateCounts);
-
-        // Clean Text Function
-        function cleanText() {
-            let text = document.getElementById('inputText').value;
-            if (!text.trim()) {
-                showNotification('Please enter some text first', 'error');
-                return;
-            }
-           
-            // Apply cleaning options
-            if (document.getElementById('removeSpaces').checked) {
-                text = text.replace(/\s+/g, ' ');
-            }
-           
-            if (document.getElementById('removeBreaks').checked) {
-                text = text.replace(/\n+/g, ' ');
-            }
-           
-            if (document.getElementById('fixOCR').checked) {
-                // Fix common OCR errors
-                text = text.replace(/[|]/g, 'I');
-                text = text.replace(/[0]/g, 'O');
-                text = text.replace(/[1]/g, 'l');
-                text = text.replace(/[5]/g, 'S');
-                text = text.replace(/[Il]/g, 'I');
-            }
-           
-            if (document.getElementById('capitalize').checked) {
-                text = text.trim();
-                if (text.length > 0) {
-                    text = text.charAt(0).toUpperCase() + text.slice(1);
+            // TRACKING LOGIC
+            utterance.onboundary = (event) => {
+                if (event.name === 'word') {
+                    const word = text.substr(event.charIndex, event.charLength);
+                    const before = text.substr(0, event.charIndex).split(' ').slice(-3).join(' ');
+                    const after = text.substr(event.charIndex + event.charLength, 20);
+                    
+                    tracker.innerHTML = `...${before} <span class="highlight-word">${word}</span> ${after}...`;
                 }
-                text = text.replace(/([.!?])\s+([a-z])/g, (match, p1, p2) => p1 + ' ' + p2.toUpperCase());
-            }
-           
-            if (document.getElementById('removeDuplicates').checked) {
-                const lines = text.split('\n');
-                const uniqueLines = [...new Set(lines)];
-                text = uniqueLines.join('\n');
-            }
-           
-            if (document.getElementById('paragraphFormat').checked) {
-                text = text.replace(/([.!?])\s+/g, '$1\n\n');
-                text = text.replace(/\n{3,}/g, '\n\n');
-            }
-           
-            document.getElementById('outputText').value = text;
-            updateCounts();
-            showNotification('Text cleaned successfully!');
+            };
+
+            utterance.onend = () => { tracker.innerHTML = "Finished Reading."; };
+            synth.speak(utterance);
         }
 
-        // Clear All
-        function clearAll() {
-            document.getElementById('inputText').value = '';
-            document.getElementById('outputText').value = '';
-            document.getElementById('cutText').value = '';
-            document.getElementById('betweenStart').value = '';
-            document.getElementById('betweenEnd').value = '';
-            document.getElementById('betweenPreview').textContent = 'No text selected. Enter start and end characters and click "Find & Highlight"';
-            document.getElementById('cutPreview').textContent = 'No text selected. Enter a character/word and click "Find & Highlight"';
-            updateCounts();
-            showNotification('All fields cleared!');
+        // --- Cleaning Functions ---
+        
+        function smartClean() {
+            let t = mainText.value;
+            t = t.replace(/\s+/g, ' '); // Spaces
+            t = t.replace(/(\d)[Oo](\d)/g, '$10$2'); // Years
+            t = t.replace(/([A-Z])1([A-Z])/g, '$1I$2'); // Uppercase I
+            t = t.replace(/([a-z])1([a-z])/g, '$1l$2'); // Lowercase L
+            mainText.value = t.trim();
         }
 
-        // Clear Output Only
-        function clearOutput() {
-            document.getElementById('outputText').value = '';
-            updateCounts();
-            showNotification('Output cleared!');
+        function deleteBefore() {
+            const marker = document.getElementById('cutMarker').value;
+            const idx = mainText.value.indexOf(marker);
+            if (idx !== -1) mainText.value = mainText.value.substring(idx);
         }
 
-        // Copy to Clipboard
-        function copyToClipboard() {
-            const text = document.getElementById('outputText').value;
-            if (!text) {
-                showNotification('No text to copy!', 'error');
-                return;
-            }
-           
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification('Text copied to clipboard!');
-            }).catch(err => {
-                console.error('Copy failed:', err);
-                showNotification('Failed to copy text', 'error');
-            });
+        function deleteAfter() {
+            const marker = document.getElementById('cutMarker').value;
+            const idx = mainText.value.indexOf(marker);
+            if (idx !== -1) mainText.value = mainText.value.substring(0, idx + marker.length);
         }
 
-        // Swap Input and Output
-        function swapText() {
-            const inputText = document.getElementById('inputText').value;
-            const outputText = document.getElementById('outputText').value;
-           
-            document.getElementById('inputText').value = outputText;
-            document.getElementById('outputText').value = inputText;
-            updateCounts();
-            showNotification('Text swapped!');
+        function deleteBetween() {
+            const start = document.getElementById('startChar').value;
+            const end = document.getElementById('endChar').value;
+            if(!start || !end) return;
+            const regex = new RegExp(`${escapeReg(start)}.*?${escapeReg(end)}`, 'gs');
+            mainText.value = mainText.value.replace(regex, '');
         }
 
-        // Quick Actions
-        function removeExtraSpaces() {
-            let text = document.getElementById('inputText').value;
-            text = text.replace(/\s+/g, ' ').trim();
-            document.getElementById('outputText').value = text;
-            updateCounts();
-            showNotification('Extra spaces removed!');
-        }
-
-        function fixLineBreaks() {
-            let text = document.getElementById('inputText').value;
-            text = text.replace(/\n+/g, ' ').trim();
-            document.getElementById('outputText').value = text;
-            updateCounts();
-            showNotification('Line breaks fixed!');
-        }
-
-        function removeEmptyLines() {
-            let text = document.getElementById('inputText').value;
-            text = text.replace(/^\s*[\r\n]/gm, '').trim();
-            document.getElementById('outputText').value = text;
-            updateCounts();
-            showNotification('Empty lines removed!');
-        }
-
-        // Delete Text Between Characters Functionality
-        function deleteTextBetween() {
-            const startChar = document.getElementById('betweenStart').value.trim();
-            const endChar = document.getElementById('betweenEnd').value.trim();
-            const keepDelimiters = document.getElementById('keepDelimiters').checked;
-            
-            if (!startChar || !endChar) {
-                showNotification('Please enter both start and end characters', 'error');
-                return;
-            }
-
-            let text = document.getElementById('outputText').value;
-            if (!text) {
-                showNotification('No text available. Please clean some text first.', 'error');
-                return;
-            }
-
-            // Escape special regex characters
-            const escapedStart = escapeRegExp(startChar);
-            const escapedEnd = escapeRegExp(endChar);
-            
-            let result = text;
-            const regex = new RegExp(`${escapedStart}.*?${escapedEnd}`, 'gs');
-            const matches = [...text.matchAll(regex)];
-            
-            if (matches.length === 0) {
-                showNotification(`No text found between "${startChar}" and "${endChar}"`, 'error');
-                return;
-            }
-
-            if (keepDelimiters) {
-                // Keep delimiters, remove content between
-                result = text.replace(regex, `${startChar}${endChar}`);
-            } else {
-                // Remove everything including delimiters
-                result = text.replace(regex, '');
-            }
-
-            document.getElementById('outputText').value = result;
-            updateCounts();
-            
-            // Show what was removed
-            const preview = document.getElementById('betweenPreview');
-            const removedCount = matches.length;
-            const sampleMatch = matches[0][0];
-            const previewText = sampleMatch.length > 100 ? 
-                sampleMatch.substring(0, 100) + '...' : sampleMatch;
-            
-            preview.innerHTML = `
-                <div style="margin-bottom: 5px; font-weight: bold; color: var(--danger)">
-                    Removed ${removedCount} occurrence(s) between "${startChar}" and "${endChar}"
-                </div>
-                <div style="margin-bottom: 10px; color: var(--text-secondary)">
-                    ${keepDelimiters ? 'Kept delimiters' : 'Removed delimiters'}
-                </div>
-                <div style="font-weight: bold; margin-bottom: 5px; font-size: 0.9rem;">
-                    Example of removed text:
-                </div>
-                <div style="background: var(--bg-primary); padding: 8px; border-radius: 5px; border: 1px solid var(--border);">
-                    ${previewText}
-                </div>
-            `;
-            
-            showNotification(`Removed ${removedCount} occurrence(s) between "${startChar}" and "${endChar}"`, 'success');
-        }
-
-        function highlightBetween() {
-            const startChar = document.getElementById('betweenStart').value.trim();
-            const endChar = document.getElementById('betweenEnd').value.trim();
-            
-            if (!startChar || !endChar) {
-                showNotification('Please enter both start and end characters', 'error');
-                return;
-            }
-
-            let text = document.getElementById('outputText').value;
-            if (!text) {
-                showNotification('No text available. Please clean some text first.', 'error');
-                return;
-            }
-
-            // Escape special regex characters
-            const escapedStart = escapeRegExp(startChar);
-            const escapedEnd = escapeRegExp(endChar);
-            
-            const regex = new RegExp(`(${escapedStart}.*?${escapedEnd})`, 'gs');
-            const matches = [...text.matchAll(regex)];
-            
-            if (matches.length === 0) {
-                document.getElementById('betweenPreview').innerHTML = `
-                    <span style="color: var(--danger)">
-                        No text found between "${startChar}" and "${endChar}"
-                    </span>
-                `;
-                return;
-            }
-
-            // Create a highlighted preview
-            let highlightedText = text;
-            matches.forEach(match => {
-                const original = match[0];
-                const highlighted = `<span class="highlight">${original}</span>`;
-                highlightedText = highlightedText.replace(original, highlighted);
-            });
-
-            // Show first match in context
-            const firstMatch = matches[0];
-            const start = Math.max(0, firstMatch.index - 100);
-            const end = Math.min(text.length, firstMatch.index + firstMatch[0].length + 100);
-            const context = text.substring(start, end);
-            
-            // Highlight in context
-            const highlightedContext = context.replace(regex, '<span class="highlight">$1</span>');
-
-            document.getElementById('betweenPreview').innerHTML = `
-                <div style="margin-bottom: 5px; font-weight: bold; color: var(--primary)">
-                    Found ${matches.length} occurrence(s) between "${startChar}" and "${endChar}"
-                </div>
-                <div>
-                    ${start > 0 ? '...' : ''}${highlightedContext}${end < text.length ? '...' : ''}
-                </div>
-                <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary)">
-                    First occurrence position: ${firstMatch.index} | Length: ${firstMatch[0].length}
-                </div>
-            `;
-            
-            showNotification(`Found ${matches.length} occurrence(s) between "${startChar}" and "${endChar}"`, 'success');
-        }
-
-        // Text Manipulation Tools
-        let currentText = '';
-        let cutPosition = -1;
-        let cutPattern = '';
-
-        function highlightText() {
-            const pattern = document.getElementById('cutText').value.trim();
-            if (!pattern) {
-                showNotification('Please enter a character or word to search for', 'error');
-                return;
-            }
-
-            currentText = document.getElementById('outputText').value;
-            if (!currentText) {
-                showNotification('No text available. Please clean some text first.', 'error');
-                return;
-            }
-
-            cutPattern = pattern;
-            const preview = document.getElementById('cutPreview');
-           
-            // Find all occurrences
-            const regex = new RegExp(`(${escapeRegExp(pattern)})`, 'gi');
-            const occurrences = [...currentText.matchAll(regex)];
-           
-            if (occurrences.length === 0) {
-                preview.innerHTML = `<span style="color: var(--danger)">Pattern "${pattern}" not found in text.</span>`;
-                cutPosition = -1;
-                return;
-            }
-
-            // Highlight first occurrence
-            const firstMatch = occurrences[0];
-            cutPosition = firstMatch.index;
-           
-            // Create preview with highlighted text
-            // Show context around the match
-            const start = Math.max(0, cutPosition - 100);
-            const end = Math.min(currentText.length, cutPosition + pattern.length + 100);
-            const context = currentText.substring(start, end);
-           
-            // Highlight the pattern in context
-            const highlightedContext = context.replace(regex, '<span class="highlight">$1</span>');
-           
-            preview.innerHTML = `
-                <div style="margin-bottom: 5px; font-weight: bold; color: var(--primary)">
-                    Found "${pattern}" ${occurrences.length} time(s)
-                </div>
-                <div>${start > 0 ? '...' : ''}${highlightedContext}${end < currentText.length ? '...' : ''}</div>
-                <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary)">
-                    Position: ${cutPosition} | Length: ${pattern.length}
-                </div>
-            `;
-           
-            showNotification(`Found "${pattern}" ${occurrences.length} time(s)`, 'success');
-        }
-
-        function cutText() {
-            if (!currentText || cutPosition === -1 || !cutPattern) {
-                showNotification('Please find a pattern first using "Find & Highlight"', 'error');
-                return;
-            }
-
-            const deleteBefore = document.getElementById('deleteBefore').checked;
-            let result = '';
-           
-            if (deleteBefore) {
-                // Delete text BEFORE the pattern (keep pattern and after)
-                const patternIndex = currentText.indexOf(cutPattern);
-                if (patternIndex !== -1) {
-                    result = currentText.substring(patternIndex);
-                }
-            } else {
-                // Delete text AFTER the pattern (keep before and pattern)
-                const patternIndex = currentText.indexOf(cutPattern);
-                if (patternIndex !== -1) {
-                    result = currentText.substring(0, patternIndex + cutPattern.length);
-                }
-            }
-
-            document.getElementById('outputText').value = result;
-            updateCounts();
-           
-            // Update preview to show what was removed
-            const preview = document.getElementById('cutPreview');
-            const removedChars = Math.abs(currentText.length - result.length);
-           
-            preview.innerHTML = `
-                <div style="margin-bottom: 5px; font-weight: bold; color: ${deleteBefore ? 'var(--success)' : 'var(--danger)'}">
-                    ${deleteBefore ? 'Removed text BEFORE' : 'Removed text AFTER'} "${cutPattern}"
-                </div>
-                <div style="margin-bottom: 5px; color: var(--text-secondary)">
-                    Removed ${removedChars} characters
-                </div>
-                <div style="max-height: 60px; overflow-y: auto; background: var(--bg-primary); padding: 8px; border-radius: 5px;">
-                    ${result.substring(0, 200)}${result.length > 200 ? '...' : ''}
-                </div>
-            `;
-           
-            showNotification(`Text cut successfully! Removed ${removedChars} characters`, 'success');
-           
-            // Reset for next operation
-            currentText = result;
-            cutPosition = -1;
-        }
-
-        function resetCut() {
-            document.getElementById('cutText').value = '';
-            document.getElementById('cutPreview').textContent = 'No text selected. Enter a character/word and click "Find & Highlight"';
-            currentText = '';
-            cutPosition = -1;
-            cutPattern = '';
-            showNotification('Cut tool reset');
-        }
-
-        // Helper function to escape regex special characters
-        function escapeRegExp(string) {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-
-        // Auto-clean on paste
-        document.getElementById('inputText').addEventListener('paste', function() {
-            setTimeout(() => {
-                if (document.getElementById('inputText').value.trim()) {
-                    cleanText();
-                }
-            }, 100);
-        });
-
-        // Initialize
-        updateCounts();
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            // Ctrl/Cmd + Enter to clean text
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                cleanText();
-            }
-           
-            // Ctrl/Cmd + C to copy if output has focus
-            if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-                const activeElement = document.activeElement;
-                if (activeElement.id === 'outputText' && activeElement.value) {
-                    copyToClipboard();
-                }
-            }
-        });
-
-        // Example text for demonstration
-        document.getElementById('inputText').addEventListener('focus', function() {
-            if (!this.value.trim()) {
-                this.value = `Example OCR text from Google Lens:
-
-This is an example of messy OCR text.
-Sometimes numbers get confused: 0 looks like O, 1 looks like l.
-Extra    spaces    appear    everywhere.
-Line breaks are inconsistent.
-
-@ Important section starts here
-This is the text we want to keep after the @ symbol.
-
-Random line breaks
-make reading difficult.
-
-Another section marker: Chapter 3
-Content after chapter marker should be kept.
-
-Text with {brackets} to remove.
-Code: \`html<div>Example</div>\` and (parentheses content).
-More text with {multiple {nested} brackets} examples.`;
-                updateCounts();
-            }
-        });
+        function escapeReg(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
     </script>
 </body>
 </html>
