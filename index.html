@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PhD & Bank OCR Assistant</title>
+    <title>PhD & Bank OCR Assistant - Fixed TTS</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -53,6 +53,7 @@
             margin-bottom: 10px;
             border: 2px solid var(--primary);
             text-transform: uppercase;
+            overflow: hidden;
         }
 
         textarea {
@@ -64,6 +65,7 @@
             font-size: 16px;
             background: var(--bg);
             color: var(--text);
+            box-sizing: border-box;
         }
 
         .tool-grid {
@@ -108,7 +110,7 @@
             background: var(--card); padding: 10px;
             border-top: 1px solid var(--border);
             display: grid; 
-            grid-template-columns: repeat(4, 1fr); /* Added 4th column */
+            grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             z-index: 1000;
         }
@@ -161,51 +163,86 @@
         const liveWord = document.getElementById('liveWordDisplay');
         const status = document.getElementById('status');
         let voices = [];
+        let speechQueue = [];
+        let currentChunkIndex = 0;
 
         function loadVoices() {
             voices = synth.getVoices().filter(v => v.lang.startsWith('en') || v.lang.startsWith('ml'));
             const select = document.getElementById('voiceSelect');
             select.innerHTML = voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
         }
-        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = loadVoices; }
+        if (speechSynthesis.onvoiceschanged !== undefined) { 
+            speechSynthesis.onvoiceschanged = loadVoices; 
+        }
+        loadVoices(); // Initial load
 
         function speak(langCode) {
             synth.cancel();
-            const wakeUp = new SpeechSynthesisUtterance("");
-            synth.speak(wakeUp);
+            speechQueue = [];
+            currentChunkIndex = 0;
 
-            const text = mainText.value;
-            if(!text) return;
+            const fullText = mainText.value.trim();
+            if (!fullText) return;
 
-            const utterance = new SpeechSynthesisUtterance(text);
+            // Chunks text by sentences or line breaks to prevent long-text hanging
+            speechQueue = fullText.match(/[^\.!\?\n]+[\.!\?\n]*/g) || [fullText];
+            
+            processQueue(langCode);
+        }
+
+        function processQueue(langCode) {
+            if (currentChunkIndex >= speechQueue.length) {
+                status.textContent = "FINISHED";
+                liveWord.innerText = "DONE";
+                return;
+            }
+
+            const textChunk = speechQueue[currentChunkIndex].trim();
+            if (textChunk.length === 0) {
+                currentChunkIndex++;
+                processQueue(langCode);
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(textChunk);
             const selectedVoice = voices.find(v => v.name === document.getElementById('voiceSelect').value) || 
                                  voices.find(v => v.lang.startsWith(langCode));
             
             utterance.voice = selectedVoice;
             utterance.rate = document.getElementById('rate').value;
 
-            utterance.onstart = () => { status.textContent = "SPEECH ACTIVE"; };
+            utterance.onstart = () => { 
+                status.textContent = `SPEAKING CHUNK ${currentChunkIndex + 1}/${speechQueue.length}`; 
+            };
+
             utterance.onboundary = (event) => {
                 if (event.name === 'word') {
-                    liveWord.innerText = text.substr(event.charIndex, event.charLength);
+                    liveWord.innerText = textChunk.substr(event.charIndex, event.charLength);
                 }
             };
-            utterance.onend = () => { 
-                status.textContent = "FINISHED"; 
-                liveWord.innerText = "DONE";
+
+            utterance.onend = () => {
+                currentChunkIndex++;
+                processQueue(langCode);
             };
+
+            utterance.onerror = () => {
+                status.textContent = "TTS ERROR";
+                currentChunkIndex++;
+                processQueue(langCode);
+            };
+
             synth.speak(utterance);
         }
 
-        // --- NEW CLEAR FUNCTION ---
         function clearAll() {
+            synth.cancel();
             mainText.value = '';
             liveWord.innerText = 'READY';
             status.textContent = 'CLEARED';
             document.getElementById('cutMarker').value = '';
             document.getElementById('startChar').value = '';
             document.getElementById('endChar').value = '';
-            synth.cancel();
         }
 
         function smartClean() {
