@@ -2,630 +2,761 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OCR & TTS Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>OCR & TTS Pro | Smart Text Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #6c63ff;
-            --secondary: #00e5a0;
-            --danger: #ff4757;
-            --warn: #ff6b35;
-            --bg: #0b0f1a;
-            --card: #111827;
-            --card2: #1a2236;
-            --text: #e8edf5;
-            --muted: #6b7a99;
-            --border: #1e2d42;
-            --glow: rgba(108,99,255,0.25);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg-dark: #0a0c15;
+            --surface: #10131f;
+            --surface-elevated: #171c2c;
+            --border-subtle: #23283e;
+            --primary: #6c63ff;
+            --primary-glow: rgba(108, 99, 255, 0.3);
+            --secondary: #00e5a0;
+            --accent-cyan: #2dd4bf;
+            --danger: #ff5e7c;
+            --warning: #ffb347;
+            --text-main: #edf2fb;
+            --text-muted: #8f9bb3;
+            --text-dim: #5e6f8d;
+        }
 
         body {
-            font-family: 'Syne', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: var(--bg-dark);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            padding: 16px 14px 140px;
             min-height: 100vh;
-            padding: 12px 10px 165px;
-            background-image: 
-                radial-gradient(ellipse at 80% 0%, rgba(108,99,255,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 0% 80%, rgba(0,229,160,0.05) 0%, transparent 50%);
         }
 
-        /* HEADER */
-        .app-header {
+        /* header */
+        .hero {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .title-section {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
-            padding: 0 2px;
+            gap: 12px;
         }
-        .app-logo {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--primary), #a78bfa);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; box-shadow: 0 0 18px var(--glow);
-        }
-        .app-title { font-size: 1.15rem; font-weight: 800; letter-spacing: 0.04em; }
-        .app-sub { font-size: 0.65rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
-
-        /* LIVE DISPLAY */
-        #liveWordDisplay {
-            background: #050810;
-            border: 1px solid var(--primary);
-            box-shadow: 0 0 20px var(--glow), inset 0 0 30px rgba(0,0,0,0.5);
-            border-radius: 12px;
-            text-align: center;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.7rem;
-            font-weight: 800;
-            min-height: 56px;
-            padding: 14px 10px;
-            margin-bottom: 12px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--secondary);
-            overflow: hidden;
-            position: relative;
-            transition: color 0.2s;
-        }
-        #liveWordDisplay::before {
-            content: '';
-            position: absolute; top: 0; left: -100%;
-            width: 60%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(108,99,255,0.06), transparent);
-            animation: scan 3s linear infinite;
-        }
-        @keyframes scan { to { left: 140%; } }
-
-        /* STATUS BAR */
-        .status-bar {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            color: var(--primary);
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .status-bar::before {
-            content: '▮';
-            color: var(--secondary);
-            animation: blink 1.2s step-end infinite;
-        }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* CARDS */
-        .card {
-            background: var(--card);
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-        }
-        .card-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            color: var(--muted);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        /* TEXTAREA */
-        textarea {
-            width: 100%;
-            height: 160px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 15px;
-            font-family: 'JetBrains Mono', monospace;
-            background: #080c14;
-            color: var(--text);
-            resize: vertical;
-            transition: border-color 0.2s;
-            line-height: 1.6;
-        }
-        textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--glow); }
-
-        /* INPUTS */
-        input[type="text"], select {
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: #080c14;
-            color: var(--text);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            width: 100%;
-            transition: border-color 0.2s;
-        }
-        input[type="text"]:focus, select:focus { outline: none; border-color: var(--primary); }
-        select option { background: #111827; }
-
-        input[type="range"] {
-            -webkit-appearance: none; width: 100%;
-            height: 4px; background: var(--border); border-radius: 4px;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 18px; height: 18px;
-            background: var(--primary); border-radius: 50%;
-            box-shadow: 0 0 8px var(--glow);
-        }
-
-        /* BUTTONS */
-        button {
-            padding: 11px 8px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 700;
-            font-family: 'Syne', sans-serif;
-            font-size: 0.8rem;
-            cursor: pointer;
+        .badge-icon {
+            background: linear-gradient(145deg, var(--primary), #9b8cff);
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
-            transition: all 0.15s;
-            letter-spacing: 0.03em;
+            font-size: 1.6rem;
+            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.25);
         }
-        button:active { transform: scale(0.94); filter: brightness(0.85); }
+        h1 {
+            font-size: 1.65rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff, var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: var(--surface);
+            padding: 5px 12px;
+            border-radius: 40px;
+            border: 1px solid var(--border-subtle);
+        }
 
-        .btn-primary  { background: linear-gradient(135deg, var(--primary), #7c73ff); color: #fff; box-shadow: 0 4px 14px rgba(108,99,255,0.3); }
-        .btn-green    { background: linear-gradient(135deg, #00b87a, var(--secondary)); color: #001a10; }
-        .btn-red      { background: linear-gradient(135deg, #c0392b, var(--danger)); color: #fff; }
-        .btn-orange   { background: linear-gradient(135deg, #e05e20, var(--warn)); color: #fff; }
-        .btn-gray     { background: #1e2d42; color: var(--text); border: 1px solid var(--border); }
-        .btn-purple   { background: linear-gradient(135deg, #7b2ff7, #a855f7); color: #fff; box-shadow: 0 4px 14px rgba(168,85,247,0.3); }
-        .btn-teal     { background: linear-gradient(135deg, #0891b2, #06b6d4); color: #fff; }
+        /* live display */
+        .live-crystal {
+            background: rgba(16, 19, 31, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--primary);
+            border-radius: 28px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: 0.02em;
+            color: var(--secondary);
+            box-shadow: 0 0 15px var(--primary-glow), inset 0 0 8px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            word-break: break-word;
+        }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .mt8 { margin-top: 8px; }
-        .mt10 { margin-top: 10px; }
+        /* progress */
+        .progress-micro {
+            background: var(--surface);
+            height: 4px;
+            border-radius: 4px;
+            margin: 0 0 16px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.25s ease;
+        }
 
-        /* STATS */
-        .stats-row {
+        /* stats grid */
+        .stats-grid {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-pill {
+            background: var(--surface);
+            border-radius: 40px;
+            padding: 6px 14px;
+            border: 1px solid var(--border-subtle);
+            flex: 1;
+            text-align: center;
+        }
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: var(--secondary);
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        /* card base */
+        .card-modern {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s;
+        }
+        .card-header {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 3px solid var(--primary);
+            padding-left: 12px;
+        }
+        textarea {
+            width: 100%;
+            background: #0c0f1a;
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            resize: vertical;
+            transition: 0.2s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+        input, select {
+            background: #0c0f1a;
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-main);
+            width: 100%;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* button system - unified, no duplicates */
+        .btn {
+            border: none;
+            border-radius: 60px;
+            padding: 8px 14px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--surface-elevated);
+            color: var(--text-main);
+            border: 1px solid var(--border-subtle);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #827aff);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #00b87a, var(--secondary));
+            color: #001a0e;
+            border: none;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #d63e4e, var(--danger));
+            color: white;
+            border: none;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #e07c2c, var(--warning));
+            color: #221000;
+            border: none;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn:active { transform: scale(0.97); }
+
+        /* layout grids */
+        .grid-2cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .grid-3cols {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            margin-bottom: 10px;
+            gap: 10px;
+            margin-top: 12px;
         }
-        .stat-box {
-            background: var(--card2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px;
-            text-align: center;
+        .flex-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
         }
-        .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 800; color: var(--secondary); }
-        .stat-lbl { font-size: 0.55rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+        .mt-2 { margin-top: 12px; }
+        .mt-1 { margin-top: 8px; }
+        .w-full { width: 100%; }
 
-        /* DOCK */
-        .bottom-dock {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(11,15,26,0.97);
-            backdrop-filter: blur(16px);
-            padding: 10px 10px 14px;
-            border-top: 1px solid var(--border);
-            z-index: 1000;
+        /* bottom dock (clean, no duplicate actions) */
+        .action-dock {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 12, 21, 0.96);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-subtle);
+            padding: 12px 16px 20px;
+            z-index: 100;
         }
-        .dock-row1 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-            gap: 7px;
-            margin-bottom: 7px;
+        .dock-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
-        .dock-row2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 7px;
+        .dock-buttons .btn {
+            flex: 1 0 auto;
+            min-width: 70px;
+            font-size: 0.7rem;
+            padding: 8px 12px;
         }
-        .dock-label {
+        .toast-message {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--secondary);
+            color: #001a0e;
+            font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.55rem;
-            color: var(--muted);
-            text-align: center;
-            margin-bottom: 5px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            font-size: 0.75rem;
+            padding: 8px 18px;
+            border-radius: 60px;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            z-index: 200;
+            white-space: nowrap;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-
-        /* TOAST */
-        #toast {
-            position: fixed; bottom: 175px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: var(--secondary); color: #001a10;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
-            padding: 8px 18px; border-radius: 20px;
-            opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap;
-            z-index: 2000;
+        .toast-message.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* PROGRESS */
-        #ttsProgress {
-            height: 3px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden;
+        hr {
+            border-color: var(--border-subtle);
+            margin: 10px 0;
         }
-        #ttsBar {
-            height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 3px; transition: width 0.3s;
+        @media (max-width: 520px) {
+            .grid-3cols { grid-template-columns: 1fr 1fr; }
+            .dock-buttons .btn { font-size: 0.65rem; }
+            body { padding: 12px 12px 150px; }
         }
-
-        /* SECTION DIVIDER */
-        .section-div {
-            display: flex; align-items: center; gap: 8px; margin: 10px 0 8px;
-        }
-        .section-div span { font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted); white-space:nowrap; }
-        .section-div::before, .section-div::after { content:''; flex:1; height:1px; background:var(--border); }
     </style>
 </head>
 <body>
 
-<div class="app-header">
-    <div class="app-logo">📄</div>
-    <div>
-        <div class="app-title">OCR · TTS PRO</div>
-        <div style="font-size:0.6rem; color:var(--muted); font-family:'JetBrains Mono',monospace;">Advanced Text Processor</div>
+<div class="hero">
+    <div class="title-section">
+        <div class="badge-icon">📡</div>
+        <div>
+            <h1>OCR·TTS STUDIO</h1>
+            <div style="font-size:0.7rem; color: var(--text-muted);">smart cleanup · voice fusion</div>
+        </div>
     </div>
-    <div class="app-sub" id="clockDisplay"></div>
+    <div class="sub" id="clockDisplay">--:--:--</div>
 </div>
 
-<div id="liveWordDisplay">READY</div>
-<div id="ttsProgress"><div id="ttsBar"></div></div>
+<div class="live-crystal" id="liveWordDisplay">⚡ READY</div>
+<div class="progress-micro"><div class="progress-fill" id="ttsProgressFill"></div></div>
 
-<!-- STATS -->
-<div class="stats-row" style="margin-top:10px;">
-    <div class="stat-box"><div class="stat-val" id="statChars">0</div><div class="stat-lbl">Chars</div></div>
-    <div class="stat-box"><div class="stat-val" id="statWords">0</div><div class="stat-lbl">Words</div></div>
-    <div class="stat-box"><div class="stat-val" id="statLines">0</div><div class="stat-lbl">Lines</div></div>
+<div class="stats-grid">
+    <div class="stat-pill"><div class="stat-number" id="statChars">0</div><div class="stat-label">Characters</div></div>
+    <div class="stat-pill"><div class="stat-number" id="statWords">0</div><div class="stat-label">Words</div></div>
+    <div class="stat-pill"><div class="stat-number" id="statLines">0</div><div class="stat-label">Lines</div></div>
 </div>
 
-<!-- MAIN TEXT -->
-<div class="card">
-    <div class="status-bar" id="status">System Standby</div>
-    <textarea id="mainText" placeholder="Paste OCR or any text here..."></textarea>
-</div>
+<textarea id="mainText" rows="6" placeholder="📄 Paste OCR text, scanned notes, or any content..."></textarea>
 
-<!-- CLEAN TOOLS -->
-<div class="card">
-    <div class="card-title">⚙️ Smart Clean Tools</div>
-    <div class="grid-2">
-        <button class="btn-green" onclick="smartClean()">🧹 OCR Clean</button>
-        <button class="btn-purple" onclick="removeDuplicateLines()">🔁 Dedup Lines</button>
+<!-- SMART CLEAN (only unique tools, no duplicate) -->
+<div class="card-modern">
+    <div class="card-header">🧹 INTELLIGENT TEXT REFINEMENT</div>
+    <div class="grid-2cols">
+        <button class="btn btn-success" id="smartCleanBtn">✨ OCR Clean</button>
+        <button class="btn btn-primary" id="dedupLinesBtn">🔁 Deduplicate Lines</button>
     </div>
-    <div class="grid-3 mt8">
-        <button class="btn-gray" onclick="trimLines()">✂️ Trim Lines</button>
-        <button class="btn-gray" onclick="removeBlankLines()">🚫 All Blanks</button>
-        <button class="btn-gray" onclick="sortLines()">🔤 Sort Lines</button>
+    <div class="grid-3cols mt-2">
+        <button class="btn btn-outline" id="trimLinesBtn">✂️ Trim Lines</button>
+        <button class="btn btn-outline" id="removeBlanksBtn">🚫 Strip Blanks</button>
+        <button class="btn btn-outline" id="sortLinesBtn">🔤 Sort A→Z</button>
     </div>
-    <div class="mt8">
-        <button class="btn-gray" style="width:100%;" onclick="removeDuplicateBlankLines()">🧽 Dedup Blank Lines</button>
+    <div class="mt-1">
+        <button class="btn btn-outline w-full" id="collapseBlankBtn">🧽 Collapse consecutive blank lines</button>
     </div>
 </div>
 
-<!-- CUT TOOLS -->
-<div class="card">
-    <div class="card-title">✂️ Advanced Cut Tools</div>
-    <input type="text" id="cutMarker" placeholder="Marker word / symbol (e.g. @)" style="margin-bottom:8px;">
-    <div class="grid-2">
-        <button class="btn-red" onclick="deleteBefore()">✂️ Del Before</button>
-        <button class="btn-red" onclick="deleteAfter()">✂️ Del After</button>
+<!-- ADVANCED CUT & MARKER TOOLS (condensed) -->
+<div class="card-modern">
+    <div class="card-header">✂️ PRECISION CUTTER</div>
+    <input type="text" id="cutMarker" placeholder="Marker word / symbol (e.g., @ or Chapter)" autocomplete="off">
+    <div class="grid-2cols mt-2">
+        <button class="btn btn-danger" id="deleteBeforeBtn">✂️ Delete Before</button>
+        <button class="btn btn-danger" id="deleteAfterBtn">✂️ Delete After</button>
     </div>
-
-    <div class="section-div"><span>between markers</span></div>
-    <div class="grid-2 mt8">
-        <input type="text" id="startChar" placeholder="Start { or word">
-        <input type="text" id="endChar" placeholder="End } or word">
+    <div class="flex-row mt-2">
+        <input type="text" id="startChar" placeholder="Start token { or [" style="flex:1;">
+        <span style="color:var(--text-muted)">→</span>
+        <input type="text" id="endChar" placeholder="End token } or ]" style="flex:1;">
     </div>
-    <div class="grid-2 mt8">
-        <button class="btn-red" onclick="deleteBetween()">🗑️ Delete Between</button>
-        <button class="btn-teal" onclick="retainBetween()">📌 Retain Between</button>
+    <div class="grid-2cols mt-2">
+        <button class="btn btn-warning" id="deleteBetweenBtn">🗑️ Delete Between</button>
+        <button class="btn btn-primary" id="retainBetweenBtn">📌 Retain Between</button>
     </div>
 </div>
 
 <!-- FIND & REPLACE -->
-<div class="card">
-    <div class="card-title">🔍 Find & Replace</div>
-    <input type="text" id="findText" placeholder="Find..." style="margin-bottom:8px;">
-    <input type="text" id="replaceText" placeholder="Replace with...">
-    <div class="grid-2 mt8">
-        <button class="btn-primary" onclick="findReplace(false)">Replace First</button>
-        <button class="btn-primary" onclick="findReplace(true)">Replace All</button>
+<div class="card-modern">
+    <div class="card-header">🔍 FIND & REPLACE</div>
+    <div class="flex-row">
+        <input type="text" id="findText" placeholder="Find phrase" style="flex:2;">
+        <input type="text" id="replaceText" placeholder="Replace with" style="flex:2;">
+    </div>
+    <div class="grid-2cols mt-2">
+        <button class="btn btn-outline" id="replaceFirstBtn">Replace First</button>
+        <button class="btn btn-primary" id="replaceAllBtn">Replace All</button>
     </div>
 </div>
 
-<!-- VOICE -->
-<div class="card">
-    <div class="card-title">🎙️ Voice Preferences</div>
-    <select id="voiceSelect" style="margin-bottom:10px;"></select>
-    <div style="display:flex; align-items:center; gap:10px;">
-        <span style="font-size:0.8rem; color:var(--muted); white-space:nowrap;">Speed</span>
-        <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1" style="flex:1;">
-        <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--secondary); min-width:28px;" id="rateLabel">1.0</span>
+<!-- VOICE CONTROLS -->
+<div class="card-modern">
+    <div class="card-header">🎙️ VOICE SYNTHESIS</div>
+    <select id="voiceSelect"></select>
+    <div class="flex-row mt-2">
+        <span style="font-size:0.75rem;">⚡ Speed</span>
+        <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1" style="flex:3;">
+        <span id="rateLabel" style="font-family:monospace; min-width:32px;">1.0</span>
     </div>
-    <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
-        <span style="font-size:0.8rem; color:var(--muted); white-space:nowrap;">Pitch</span>
-        <input type="range" id="pitch" min="0.5" max="2" value="1" step="0.1" style="flex:1;">
-        <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--secondary); min-width:28px;" id="pitchLabel">1.0</span>
+    <div class="flex-row mt-1">
+        <span style="font-size:0.75rem;">🎵 Pitch</span>
+        <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1" style="flex:3;">
+        <span id="pitchLabel" style="font-family:monospace; min-width:32px;">1.0</span>
     </div>
-</div>
-
-<!-- BOTTOM DOCK -->
-<div class="bottom-dock">
-    <div class="dock-label">quick actions</div>
-    <div class="dock-row1">
-        <button class="btn-gray"   onclick="clearAll()">🗑️ CLR</button>
-        <button class="btn-green"  onclick="smartClean()">🧹 CLN</button>
-        <button class="btn-gray"   onclick="copyText()">📋 COPY</button>
-        <button class="btn-gray"   onclick="pasteText()">📥 PASTE</button>
-        <button class="btn-purple" onclick="removeDuplicateLines()">🔁 DEDUP</button>
+    <div class="grid-2cols mt-2">
+        <button class="btn btn-success" id="speakEnBtn">🇬🇧 Speak English</button>
+        <button class="btn btn-warning" id="speakMlBtn">🇮🇳 Speak Malayalam</button>
     </div>
-    <div class="dock-row2">
-        <button class="btn-orange" onclick="synth.cancel(); status.textContent='STOPPED';">⏹ STOP</button>
-        <button class="btn-gray"   onclick="pauseResume()">⏸ PAUSE</button>
-        <button class="btn-primary" onclick="speak('en')">🗣️ EN</button>
-        <button class="btn-orange"  onclick="speak('ml')">🗣️ ML</button>
+    <div class="flex-row mt-2">
+        <button class="btn btn-danger" id="stopSpeechBtn">⏹️ Stop</button>
+        <button class="btn btn-outline" id="pauseResumeBtn">⏯️ Pause/Resume</button>
     </div>
 </div>
 
-<div id="toast"></div>
+<!-- BOTTOM DOCK (CURATED: only core essentials, no duplicate functions from above) -->
+<div class="action-dock">
+    <div class="dock-buttons">
+        <button class="btn btn-outline" id="clearAllBtn">🗑️ Clear All</button>
+        <button class="btn btn-success" id="smartCleanDockBtn">🧹 Clean</button>
+        <button class="btn btn-outline" id="copyBtn">📋 Copy</button>
+        <button class="btn btn-outline" id="pasteBtn">📥 Paste</button>
+        <button class="btn btn-primary" id="dedupDockBtn">🔁 Dedup</button>
+    </div>
+</div>
+
+<div id="toastMsg" class="toast-message"></div>
 
 <script>
-    const synth = window.speechSynthesis;
-    const mainText = document.getElementById('mainText');
-    const liveWord = document.getElementById('liveWordDisplay');
-    const statusEl = document.getElementById('status');
-    const ttsBar = document.getElementById('ttsBar');
-    let voices = [], speechQueue = [], currentChunkIndex = 0, currentLang = 'en';
-    let isPaused = false;
+    // ----- DOM elements -----
+    const textarea = document.getElementById('mainText');
+    const liveDisplay = document.getElementById('liveWordDisplay');
+    const progressFill = document.getElementById('ttsProgressFill');
+    const statusToast = (msg) => {
+        const toast = document.getElementById('toastMsg');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1800);
+    };
 
-    // Clock
+    // Stats
+    function updateAllStats() {
+        const val = textarea.value;
+        document.getElementById('statChars').innerText = val.length;
+        const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+        document.getElementById('statWords').innerText = words;
+        const lines = val ? val.split('\n').length : 0;
+        document.getElementById('statLines').innerText = lines;
+    }
+    textarea.addEventListener('input', updateAllStats);
+    updateAllStats();
+
+    // clock
     function updateClock() {
         const now = new Date();
-        document.getElementById('clockDisplay').textContent = 
-            now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        document.getElementById('clockDisplay').innerText = now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
     }
-    setInterval(updateClock, 1000); updateClock();
+    setInterval(updateClock, 1000);
+    updateClock();
 
-    // Stats update
-    mainText.addEventListener('input', updateStats);
-    function updateStats() {
-        const v = mainText.value;
-        document.getElementById('statChars').textContent = v.length;
-        document.getElementById('statWords').textContent = v.trim() ? v.trim().split(/\s+/).length : 0;
-        document.getElementById('statLines').textContent = v ? v.split('\n').length : 0;
-    }
+    // ------- TTS Engine ----------
+    const synth = window.speechSynthesis;
+    let voiceList = [];
+    let speechQueue = [];
+    let currentChunkIdx = 0;
+    let currentLang = 'en';
+    let isPausedFlag = false;
+    let activeUtterance = null;
 
-    // Range labels
-    document.getElementById('rate').addEventListener('input', e => {
-        document.getElementById('rateLabel').textContent = parseFloat(e.target.value).toFixed(1);
-    });
-    document.getElementById('pitch').addEventListener('input', e => {
-        document.getElementById('pitchLabel').textContent = parseFloat(e.target.value).toFixed(1);
-    });
-
-    // Voices
-    function loadVoices() {
-        voices = synth.getVoices().filter(v => v.lang.startsWith('en') || v.lang.startsWith('ml'));
+    function populateVoices() {
+        voiceList = synth.getVoices().filter(v => v.lang.startsWith('en') || v.lang.startsWith('ml'));
         const select = document.getElementById('voiceSelect');
-        select.innerHTML = voices.map(v =>
-            `<option value="${v.name}">${v.name} (${v.lang})</option>`
-        ).join('');
+        if (voiceList.length) {
+            select.innerHTML = voiceList.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+        } else {
+            select.innerHTML = '<option>Default Voice</option>';
+        }
     }
-    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices();
+    if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = populateVoices;
+    populateVoices();
 
-    // TTS
-    function speak(langCode) {
-        synth.cancel(); speechQueue = []; currentChunkIndex = 0; currentLang = langCode;
-        isPaused = false;
-        const fullText = mainText.value.trim();
-        if (!fullText) { toast('No text to speak'); return; }
-        speechQueue = fullText.match(/[^\.!\?\n]+[\.!\?\n]*/g) || [fullText];
-        processQueue(langCode);
-    }
-
-    function processQueue(langCode) {
-        ttsBar.style.width = `${Math.round((currentChunkIndex / speechQueue.length) * 100)}%`;
-        if (currentChunkIndex >= speechQueue.length) {
-            statusEl.textContent = 'FINISHED';
-            liveWord.style.color = 'var(--secondary)';
-            liveWord.innerText = '✓ DONE';
-            ttsBar.style.width = '100%';
+    // process TTS chunks
+    function processSpeechQueue() {
+        if (!speechQueue.length) {
+            progressFill.style.width = '100%';
+            liveDisplay.innerText = '✓ COMPLETE';
+            statusToast('Speech finished');
             return;
         }
-        const textChunk = speechQueue[currentChunkIndex].trim();
-        if (!textChunk) { currentChunkIndex++; processQueue(langCode); return; }
-
-        const utterance = new SpeechSynthesisUtterance(textChunk);
-        const selectedVoice = voices.find(v => v.name === document.getElementById('voiceSelect').value) ||
-                              voices.find(v => v.lang.startsWith(langCode));
-        utterance.voice = selectedVoice || null;
-        utterance.rate  = parseFloat(document.getElementById('rate').value);
+        if (currentChunkIdx >= speechQueue.length) {
+            progressFill.style.width = '100%';
+            liveDisplay.innerText = '✓ DONE';
+            return;
+        }
+        const chunk = speechQueue[currentChunkIdx].trim();
+        if (!chunk) {
+            currentChunkIdx++;
+            processSpeechQueue();
+            return;
+        }
+        const utterance = new SpeechSynthesisUtterance(chunk);
+        const selectedVoiceName = document.getElementById('voiceSelect').value;
+        const matchedVoice = voiceList.find(v => v.name === selectedVoiceName);
+        utterance.voice = matchedVoice || (voiceList.find(v => v.lang.startsWith(currentLang)) || null);
+        utterance.rate = parseFloat(document.getElementById('rate').value);
         utterance.pitch = parseFloat(document.getElementById('pitch').value);
-
+        
         utterance.onstart = () => {
-            statusEl.textContent = `SPEAKING ${currentChunkIndex + 1}/${speechQueue.length}`;
-            liveWord.style.color = 'var(--secondary)';
+            const percent = (currentChunkIdx / speechQueue.length) * 100;
+            progressFill.style.width = `${percent}%`;
         };
         utterance.onboundary = (e) => {
-            if (e.name === 'word') liveWord.innerText = textChunk.substr(e.charIndex, e.charLength);
+            if (e.name === 'word') {
+                const wordPart = chunk.substr(e.charIndex, e.charLength);
+                if (wordPart) liveDisplay.innerText = wordPart;
+            }
         };
-        utterance.onend = () => { currentChunkIndex++; processQueue(langCode); };
-        utterance.onerror = () => { currentChunkIndex++; processQueue(langCode); };
+        utterance.onend = () => {
+            currentChunkIdx++;
+            processSpeechQueue();
+        };
+        utterance.onerror = () => {
+            currentChunkIdx++;
+            processSpeechQueue();
+        };
+        activeUtterance = utterance;
         synth.speak(utterance);
     }
 
-    function pauseResume() {
-        if (isPaused) { synth.resume(); isPaused = false; statusEl.textContent = 'RESUMED'; }
-        else { synth.pause(); isPaused = true; statusEl.textContent = 'PAUSED'; }
+    function startTTS(langCode) {
+        if (synth.speaking) synth.cancel();
+        isPausedFlag = false;
+        const fullText = textarea.value.trim();
+        if (!fullText) { statusToast('No text to speak'); return; }
+        currentLang = langCode;
+        speechQueue = fullText.match(/[^\.!\?\n]+[\.!\?\n]*/g) || [fullText];
+        currentChunkIdx = 0;
+        progressFill.style.width = '0%';
+        processSpeechQueue();
     }
 
-    // ── CLEAN TOOLS ──────────────────────────────────────────
+    function stopTTS() {
+        synth.cancel();
+        activeUtterance = null;
+        speechQueue = [];
+        currentChunkIdx = 0;
+        progressFill.style.width = '0%';
+        liveDisplay.innerText = '⏹ STOPPED';
+        statusToast('Speech stopped');
+    }
 
-    function smartClean() {
-        let t = mainText.value;
+    function pauseResumeTTS() {
+        if (synth.speaking && !synth.paused) {
+            synth.pause();
+            isPausedFlag = true;
+            statusToast('Paused');
+        } else if (synth.paused) {
+            synth.resume();
+            isPausedFlag = false;
+            statusToast('Resumed');
+        } else {
+            statusToast('Nothing playing');
+        }
+    }
+
+    // ------ TEXT PROCESSING (no duplicate buttons, all essential)
+    function smartCleanText() {
+        let t = textarea.value;
         t = t.replace(/\r\n/g, '\n');
         t = t.replace(/[ \t]+/g, ' ');
         t = t.replace(/(\d)[Oo](\d)/g, '$10$2');
         t = t.replace(/([A-Z])1([A-Z])/g, '$1I$2');
         t = t.replace(/([a-z])1([a-z])/g, '$1l$2');
-        t = t.replace(/([\u0d00-\u0d7f])\s([\u0d3e-\u0d4d])/g, '$1$2');
         t = t.split('\n').map(l => l.trim()).join('\n');
-        mainText.value = t.trim();
-        updateStats(); toast('OCR Clean Done');
+        textarea.value = t.trim();
+        updateAllStats();
+        statusToast('✨ OCR Clean applied');
     }
 
-    function removeDuplicateLines() {
-        const lines = mainText.value.split('\n');
+    function deduplicateLines() {
+        const lines = textarea.value.split('\n');
         const seen = new Set();
-        const unique = lines.filter(line => {
+        const unique = [];
+        for (let line of lines) {
             const key = line.trim().toLowerCase();
-            if (key === '') return true; // preserve blank lines
-            if (seen.has(key)) return false;
-            seen.add(key); return true;
-        });
+            if (key === '') { unique.push(line); continue; }
+            if (!seen.has(key)) {
+                seen.add(key);
+                unique.push(line);
+            }
+        }
         const removed = lines.length - unique.length;
-        mainText.value = unique.join('\n');
-        updateStats();
-        toast(`Removed ${removed} duplicate line${removed !== 1 ? 's' : ''}`);
+        textarea.value = unique.join('\n');
+        updateAllStats();
+        statusToast(`Removed ${removed} duplicate line${removed !== 1 ? 's' : ''}`);
     }
 
     function trimLines() {
-        mainText.value = mainText.value.split('\n').map(l => l.trim()).join('\n');
-        updateStats(); toast('Lines Trimmed');
+        textarea.value = textarea.value.split('\n').map(l => l.trim()).join('\n');
+        updateAllStats();
+        statusToast('Trimmed line edges');
     }
 
     function removeBlankLines() {
-        mainText.value = mainText.value.split('\n').filter(l => l.trim() !== '').join('\n');
-        updateStats(); toast('All Blank Lines Removed');
+        textarea.value = textarea.value.split('\n').filter(l => l.trim() !== '').join('\n');
+        updateAllStats();
+        statusToast('Removed all blank lines');
     }
 
-    function removeDuplicateBlankLines() {
-        const before = mainText.value.split('\n').length;
-        mainText.value = mainText.value.replace(/(\n[ \t]*){3,}/g, '\n\n');
-        const removed = before - mainText.value.split('\n').length;
-        updateStats();
-        toast(removed > 0 ? `Collapsed ${removed} extra blank line${removed !== 1 ? 's' : ''}` : 'No consecutive blanks found');
+    function collapseConsecutiveBlanks() {
+        const beforeLen = textarea.value.split('\n').length;
+        textarea.value = textarea.value.replace(/(\n[ \t]*){3,}/g, '\n\n');
+        const afterLen = textarea.value.split('\n').length;
+        updateAllStats();
+        statusToast(`Collapsed extra blanks (${beforeLen - afterLen} lines removed)`);
     }
 
-    function sortLines() {
-        const lines = mainText.value.split('\n');
+    function sortLinesAlphabetical() {
+        const lines = textarea.value.split('\n');
         lines.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-        mainText.value = lines.join('\n');
-        updateStats(); toast('Lines Sorted A→Z');
+        textarea.value = lines.join('\n');
+        updateAllStats();
+        statusToast('Lines sorted A→Z');
     }
 
-    // ── CUT TOOLS ────────────────────────────────────────────
-
-    function deleteBefore() {
-        const m = document.getElementById('cutMarker').value;
-        if (!m) { toast('Enter marker first'); return; }
-        const i = mainText.value.indexOf(m);
-        if (i !== -1) { mainText.value = mainText.value.substring(i); updateStats(); toast('Deleted before marker'); }
-        else toast('Marker not found');
+    // cut tools
+    function deleteBeforeMarker() {
+        const marker = document.getElementById('cutMarker').value;
+        if (!marker) { statusToast('Enter marker first'); return; }
+        const idx = textarea.value.indexOf(marker);
+        if (idx !== -1) { textarea.value = textarea.value.substring(idx); updateAllStats(); statusToast(`Deleted before "${marker}"`); }
+        else statusToast('Marker not found');
     }
-
-    function deleteAfter() {
-        const m = document.getElementById('cutMarker').value;
-        if (!m) { toast('Enter marker first'); return; }
-        const i = mainText.value.indexOf(m);
-        if (i !== -1) { mainText.value = mainText.value.substring(0, i + m.length); updateStats(); toast('Deleted after marker'); }
-        else toast('Marker not found');
+    function deleteAfterMarker() {
+        const marker = document.getElementById('cutMarker').value;
+        if (!marker) { statusToast('Enter marker'); return; }
+        const idx = textarea.value.indexOf(marker);
+        if (idx !== -1) { textarea.value = textarea.value.substring(0, idx + marker.length); updateAllStats(); statusToast(`Deleted after "${marker}"`); }
+        else statusToast('Marker not found');
     }
-
-    function deleteBetween() {
+    function deleteBetweenMarkers() {
         const s = document.getElementById('startChar').value;
         const e = document.getElementById('endChar').value;
-        if (!s || !e) { toast('Enter start & end'); return; }
-        const esc = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (!s || !e) { statusToast('Both start & end tokens needed'); return; }
+        const esc = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`${esc(s)}[\\s\\S]*?${esc(e)}`, 'g');
-        const orig = mainText.value;
-        mainText.value = orig.replace(regex, '');
-        updateStats();
-        toast(orig !== mainText.value ? 'Deleted between markers' : 'Pattern not found');
+        const newVal = textarea.value.replace(regex, '');
+        if (newVal === textarea.value) statusToast('Pattern not found');
+        else { textarea.value = newVal; updateAllStats(); statusToast('Deleted between markers'); }
     }
-
-    function retainBetween() {
+    function retainBetweenMarkers() {
         const s = document.getElementById('startChar').value;
         const e = document.getElementById('endChar').value;
-        if (!s || !e) { toast('Enter start & end'); return; }
-        const esc = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (!s || !e) { statusToast('Start & end required'); return; }
+        const esc = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`${esc(s)}([\\s\\S]*?)${esc(e)}`, 'g');
         const matches = [];
         let m;
-        while ((m = regex.exec(mainText.value)) !== null) {
-            matches.push(m[1].trim());
+        while ((m = regex.exec(textarea.value)) !== null) {
+            if (m[1] && m[1].trim()) matches.push(m[1].trim());
         }
-        if (matches.length === 0) { toast('No match found'); return; }
-        mainText.value = matches.join('\n');
-        updateStats();
-        toast(`Retained ${matches.length} match${matches.length !== 1 ? 'es' : ''}`);
+        if (matches.length === 0) { statusToast('No content found between markers'); return; }
+        textarea.value = matches.join('\n');
+        updateAllStats();
+        statusToast(`Retained ${matches.length} segment${matches.length !== 1 ? 's' : ''}`);
     }
 
-    // ── FIND & REPLACE ───────────────────────────────────────
-
-    function findReplace(all) {
+    // find replace
+    function replaceText(all) {
         const find = document.getElementById('findText').value;
-        const rep  = document.getElementById('replaceText').value;
-        if (!find) { toast('Enter search text'); return; }
+        const rep = document.getElementById('replaceText').value;
+        if (!find) { statusToast('Enter search text'); return; }
         if (all) {
-            const orig = mainText.value;
-            mainText.value = orig.split(find).join(rep);
-            const count = orig.split(find).length - 1;
-            updateStats(); toast(`Replaced ${count} occurrence${count !== 1 ? 's' : ''}`);
+            const original = textarea.value;
+            const replaced = original.split(find).join(rep);
+            const count = original.split(find).length - 1;
+            textarea.value = replaced;
+            updateAllStats();
+            statusToast(`Replaced ${count} occurrence${count !== 1 ? 's' : ''}`);
         } else {
-            const i = mainText.value.indexOf(find);
-            if (i !== -1) {
-                mainText.value = mainText.value.substring(0, i) + rep + mainText.value.substring(i + find.length);
-                updateStats(); toast('Replaced first occurrence');
-            } else toast('Text not found');
+            const idx = textarea.value.indexOf(find);
+            if (idx !== -1) {
+                textarea.value = textarea.value.substring(0, idx) + rep + textarea.value.substring(idx + find.length);
+                updateAllStats();
+                statusToast('First occurrence replaced');
+            } else statusToast('Not found');
         }
     }
 
-    // ── UTILITIES ────────────────────────────────────────────
-
-    function clearAll() {
-        synth.cancel(); isPaused = false;
-        mainText.value = '';
-        liveWord.innerText = 'READY';
-        liveWord.style.color = 'var(--secondary)';
-        statusEl.textContent = 'CLEARED';
-        ttsBar.style.width = '0%';
-        ['cutMarker','startChar','endChar','findText','replaceText'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-        });
-        updateStats(); toast('Cleared');
+    // clear & clipboard
+    function clearAllFields() {
+        stopTTS();
+        textarea.value = '';
+        document.getElementById('cutMarker').value = '';
+        document.getElementById('startChar').value = '';
+        document.getElementById('endChar').value = '';
+        document.getElementById('findText').value = '';
+        document.getElementById('replaceText').value = '';
+        updateAllStats();
+        liveDisplay.innerText = '🧹 CLEAR';
+        statusToast('All cleared');
     }
-
-    function copyText() {
-        if (!mainText.value) { toast('Nothing to copy'); return; }
-        navigator.clipboard.writeText(mainText.value).then(() => toast('Copied to clipboard'));
+    async function copyText() {
+        if (!textarea.value) { statusToast('Nothing to copy'); return; }
+        await navigator.clipboard.writeText(textarea.value);
+        statusToast('Copied to clipboard');
     }
-
     async function pasteText() {
         try {
-            const t = await navigator.clipboard.readText();
-            mainText.value += t;
-            updateStats(); toast('Pasted from clipboard');
-        } catch { toast('Paste failed — use long-press'); }
+            const clip = await navigator.clipboard.readText();
+            textarea.value += clip;
+            updateAllStats();
+            statusToast('Pasted from clipboard');
+        } catch { statusToast('Paste failed — manual paste allowed'); }
     }
 
-    function toast(msg) {
-        const el = document.getElementById('toast');
-        el.textContent = msg; el.classList.add('show');
-        setTimeout(() => el.classList.remove('show'), 2000);
-    }
+    // ----- Event bindings (no duplicates, streamlined) -----
+    document.getElementById('smartCleanBtn').addEventListener('click', smartCleanText);
+    document.getElementById('dedupLinesBtn').addEventListener('click', deduplicateLines);
+    document.getElementById('trimLinesBtn').addEventListener('click', trimLines);
+    document.getElementById('removeBlanksBtn').addEventListener('click', removeBlankLines);
+    document.getElementById('sortLinesBtn').addEventListener('click', sortLinesAlphabetical);
+    document.getElementById('collapseBlankBtn').addEventListener('click', collapseConsecutiveBlanks);
+    document.getElementById('deleteBeforeBtn').addEventListener('click', deleteBeforeMarker);
+    document.getElementById('deleteAfterBtn').addEventListener('click', deleteAfterMarker);
+    document.getElementById('deleteBetweenBtn').addEventListener('click', deleteBetweenMarkers);
+    document.getElementById('retainBetweenBtn').addEventListener('click', retainBetweenMarkers);
+    document.getElementById('replaceFirstBtn').addEventListener('click', () => replaceText(false));
+    document.getElementById('replaceAllBtn').addEventListener('click', () => replaceText(true));
+    document.getElementById('speakEnBtn').addEventListener('click', () => startTTS('en'));
+    document.getElementById('speakMlBtn').addEventListener('click', () => startTTS('ml'));
+    document.getElementById('stopSpeechBtn').addEventListener('click', stopTTS);
+    document.getElementById('pauseResumeBtn').addEventListener('click', pauseResumeTTS);
+    document.getElementById('clearAllBtn').addEventListener('click', clearAllFields);
+    document.getElementById('smartCleanDockBtn').addEventListener('click', smartCleanText);
+    document.getElementById('copyBtn').addEventListener('click', copyText);
+    document.getElementById('pasteBtn').addEventListener('click', pasteText);
+    document.getElementById('dedupDockBtn').addEventListener('click', deduplicateLines);
 
-    updateStats();
+    // Range labels
+    document.getElementById('rate').addEventListener('input', e => document.getElementById('rateLabel').innerText = parseFloat(e.target.value).toFixed(1));
+    document.getElementById('pitch').addEventListener('input', e => document.getElementById('pitchLabel').innerText = parseFloat(e.target.value).toFixed(1));
+    
+    // initial stats & set live word listener for tts visual 
+    updateAllStats();
+    // small dummy to reset visual when TTS ends
+    window.addEventListener('beforeunload', () => synth.cancel());
 </script>
 </body>
 </html>
