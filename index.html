@@ -8,29 +8,22 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --ink:#0d0f14;
-  --paper:#f5f2eb;
-  --paper2:#edeae0;
-  --rule:#d4d0c4;
-  --rule2:#c2bfb0;
-  --stamp:#1a1c26;
-  --red:#b83030;
-  --green:#1a6e42;
-  --blue:#1a3878;
-  --amber:#b07010;
-  --mark:#f0e030;
-  --mono:'DM Mono',monospace;
-  --head:'Syne',sans-serif;
+  --ink:#0d0f14;--paper:#f5f2eb;--paper2:#edeae0;
+  --rule:#d4d0c4;--rule2:#c2bfb0;--stamp:#1a1c26;
+  --red:#b83030;--green:#1a6e42;--blue:#1a3878;--amber:#b07010;--mark:#f0e030;
+  --mono:'DM Mono',monospace;--head:'Syne',sans-serif;
 }
 html,body{height:100%;overflow:hidden;overscroll-behavior:none;}
 body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:13px;display:flex;flex-direction:column;}
 
+/* HEADER */
 .hdr{background:var(--stamp);color:var(--paper);padding:9px 13px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .hdr-title{font-family:var(--head);font-weight:800;font-size:.95rem;letter-spacing:.06em;}
 .hdr-stats{display:flex;gap:10px;font-size:.62rem;opacity:.65;}
 .hdr-stats b{color:var(--mark);opacity:1;font-weight:500;}
 #clk{font-size:.6rem;opacity:.45;}
 
+/* TEXTAREA */
 #mainText{
   flex:0 0 38vh;width:100%;background:var(--paper);border:none;
   border-bottom:2px solid var(--rule2);padding:13px 15px;
@@ -41,14 +34,42 @@ body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:
 }
 #mainText::placeholder{color:#b0aca0;font-style:italic;}
 
+/* SELECTION BAR */
+.sel-bar{
+  background:#fffbe6;border-bottom:1.5px solid var(--amber);
+  padding:5px 13px;font-family:var(--mono);font-size:.62rem;
+  color:var(--amber);display:none;flex-shrink:0;
+  align-items:center;justify-content:space-between;gap:8px;
+}
+.sel-bar.on{display:flex;}
+.sel-bar b{color:var(--ink);}
+
+/* TOOLBAR TOGGLE */
+.toolbar-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--stamp);color:var(--paper);
+  padding:7px 13px;cursor:pointer;flex-shrink:0;
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.06em;
+  user-select:none;border-top:1px solid rgba(255,255,255,.1);
+}
+.toggle-arrow{transition:transform .2s;display:inline-block;}
+.tabs-panels.open .toggle-arrow{transform:rotate(180deg);}
+
+/* TABS + PANELS WRAPPER */
+.tabs-panels{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.tabs-panels.open{display:flex;}
+
+/* TABS */
 .tabs{display:flex;background:var(--stamp);flex-shrink:0;}
-.tab{flex:1;padding:8px 2px;font-family:var(--mono);font-size:.6rem;font-weight:500;letter-spacing:.05em;text-align:center;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;text-transform:uppercase;user-select:none;}
+.tab{flex:1;padding:8px 2px;font-family:var(--mono);font-size:.58rem;font-weight:500;letter-spacing:.04em;text-align:center;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;text-transform:uppercase;user-select:none;}
 .tab.active{color:var(--mark);border-bottom-color:var(--mark);}
 
+/* PANELS */
 .panels{flex:1;overflow:hidden;position:relative;background:var(--paper2);}
 .panel{position:absolute;inset:0;overflow-y:auto;padding:10px 12px calc(90px + env(safe-area-inset-bottom));display:none;overscroll-behavior:contain;}
 .panel.active{display:block;}
 
+/* BUTTONS */
 .row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px;}
 .btn{border:1.5px solid var(--rule2);border-radius:4px;padding:6px 11px;font-family:var(--mono);font-size:.68rem;font-weight:500;cursor:pointer;background:var(--paper);color:var(--ink);transition:.1s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
 .btn:active{transform:scale(0.95);}
@@ -57,12 +78,18 @@ body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:
 .btn.r{color:var(--red);border-color:var(--red);}.btn.r:hover{background:var(--red);color:#fff;}
 .btn.b{color:var(--blue);border-color:var(--blue);}.btn.b:hover{background:var(--blue);color:#fff;}
 .btn.a{color:var(--amber);border-color:var(--amber);}.btn.a:hover{background:var(--amber);color:#fff;}
+.btn.ai{background:var(--stamp);color:var(--mark);border-color:var(--stamp);font-weight:600;}
+.btn.ai:hover{background:#2d3148;}
+.btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none;}
 
+/* INPUTS */
 .field{border:1.5px solid var(--rule2);border-radius:4px;padding:6px 10px;font-family:var(--mono);font-size:.68rem;background:var(--paper);color:var(--ink);flex:1;min-width:70px;}
 .field:focus{outline:none;border-color:var(--stamp);}
 .irow{display:flex;gap:6px;margin-bottom:7px;align-items:center;flex-wrap:wrap;}
 .lbl{font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:#999;margin:10px 0 5px;display:block;}
+.ai-note{font-size:.6rem;color:#999;margin-top:6px;line-height:1.6;}
 
+/* HISTORY */
 #histList{font-size:.62rem;color:#888;line-height:1.9;}
 .he{padding:2px 4px;cursor:pointer;border-radius:3px;display:flex;align-items:center;gap:6px;}
 .he:hover{background:var(--rule);color:var(--ink);}
@@ -70,6 +97,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:
 .he:hover .rv{opacity:1;}
 .he .prev{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:.5;}
 
+/* DOCK */
 .dock{position:fixed;bottom:0;left:0;right:0;background:var(--stamp);padding:9px 12px calc(14px + env(safe-area-inset-bottom));display:flex;gap:7px;z-index:100;}
 .dock .btn{flex:1;font-size:.62rem;padding:7px 6px;color:var(--paper);border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.07);justify-content:center;}
 .dock .btn:hover{background:rgba(255,255,255,.18);}
@@ -77,38 +105,15 @@ body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:
 .dock .btn.hi:hover{background:#e8d800;}
 .dock .btn.del{background:var(--red);color:#fff;border-color:transparent;}
 
+/* TOAST */
 #toast{position:fixed;bottom:calc(62px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(6px);background:var(--stamp);color:var(--mark);font-family:var(--mono);font-size:.65rem;font-weight:500;padding:5px 15px;border-radius:3px;opacity:0;pointer-events:none;transition:.15s;white-space:nowrap;z-index:200;}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
-
-.btn.ai{background:var(--stamp);color:var(--mark);border-color:var(--stamp);font-weight:600;}
-.btn.ai:hover{background:#2d3148;border-color:#2d3148;}
-.btn.ai:disabled{opacity:.5;cursor:not-allowed;}
-.ai-note{font-size:.6rem;color:#999;margin-top:6px;line-height:1.6;}
-
-.toolbar-toggle{
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--stamp);color:var(--paper);
-  padding:7px 13px;cursor:pointer;flex-shrink:0;
-  font-family:var(--mono);font-size:.65rem;letter-spacing:.06em;
-  user-select:none;border-top:1px solid rgba(255,255,255,.08);
-}
-.toolbar-toggle .arrow{transition:transform .2s;font-size:.7rem;}
-.toolbar-toggle.open .arrow{transform:rotate(180deg);}
-.sel-bar{
-  background:#fffbe6;border-bottom:1.5px solid var(--amber);
-  padding:5px 13px;font-family:var(--mono);font-size:.62rem;
-  color:var(--amber);display:none;flex-shrink:0;
-  align-items:center;justify-content:space-between;
-}
-.sel-bar.on{display:flex;}
-.sel-bar b{color:var(--ink);}
-.tabs-panels{display:none;flex-direction:column;flex:1;overflow:hidden;}
-.tabs-panels.open{display:flex;}
 ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--rule2);}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-title">OCR WORKSHOP</div>
   <div class="hdr-stats">
@@ -119,144 +124,166 @@ body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:
   <div id="clk"></div>
 </div>
 
+<!-- TEXTAREA -->
 <textarea id="mainText" placeholder="Paste lens / OCR text here…" spellcheck="true"></textarea>
 
+<!-- SELECTION BAR -->
 <div class="sel-bar" id="selBar">
-  <span>Selection: <b id="selCount">0</b> chars selected — functions apply to selection only</span>
-  <span style="cursor:pointer;opacity:.6" id="selClear">✕</span>
+  <span>Selection: <b id="selCount">0</b> chars — functions apply to selection only</span>
+  <span style="cursor:pointer;font-size:.8rem" id="selClear">✕ clear</span>
 </div>
+
+<!-- TOOLBAR TOGGLE -->
 <div class="toolbar-toggle" id="toolbarToggle">
-  <span>TOOLS</span><span class="arrow">▲</span>
+  <span>TOOLS</span>
+  <span class="toggle-arrow">▼</span>
 </div>
+
+<!-- TABS + PANELS (hidden until toggled) -->
 <div class="tabs-panels" id="tabsPanels">
-<div class="tabs">
-  <div class="tab active" data-tab="clean">Clean</div>
-  <div class="tab" data-tab="ai">AI</div>
-  <div class="tab" data-tab="cut">Cut</div>
-  <div class="tab" data-tab="find">Find</div>
-  <div class="tab" data-tab="wrap">Wrap</div>
-  <div class="tab" data-tab="hist">Hist</div>
-</div>
 
-<div class="panels">
-
-  <div class="panel active" id="p-clean">
-    <div class="row">
-      <button class="btn g" id="ocrBtn">✦ OCR Fix</button>
-      <button class="btn" id="trimBtn">Trim Lines</button>
-      <button class="btn" id="noBlanksBtn">Strip Blanks</button>
-      <button class="btn" id="collBtn">Collapse Blanks</button>
-      <button class="btn" id="dedupBtn">Deduplicate</button>
-    </div>
-    <div class="row">
-      <button class="btn" id="sortBtn">Sort A→Z</button>
-      <button class="btn" id="revBtn">Reverse</button>
-      <button class="btn" id="joinBtn">Join Lines</button>
-      <button class="btn" id="unwrapBtn">Unwrap Paras</button>
-      <button class="btn" id="htmlBtn">Strip HTML</button>
-      <button class="btn" id="fixSpacesBtn">Fix Spaces</button>
-    </div>
-    <span class="lbl">Case</span>
-    <div class="row">
-      <button class="btn" id="lcBtn">lower</button>
-      <button class="btn" id="ucBtn">UPPER</button>
-      <button class="btn" id="tcBtn">Title</button>
-      <button class="btn" id="scBtn">Sentence</button>
-    </div>
-    <span class="lbl">Extract</span>
-    <div class="row">
-      <button class="btn b" id="exNumBtn">Numbers</button>
-      <button class="btn b" id="exEmailBtn">Emails</button>
-      <button class="btn b" id="exUrlBtn">URLs</button>
-      <button class="btn" id="noNumBtn">Strip Line#</button>
-      <button class="btn" id="noPuncBtn">Strip Punct</button>
-    </div>
+  <div class="tabs">
+    <div class="tab active" data-tab="clean">Clean</div>
+    <div class="tab" data-tab="ai">AI</div>
+    <div class="tab" data-tab="cut">Cut</div>
+    <div class="tab" data-tab="find">Find</div>
+    <div class="tab" data-tab="wrap">Wrap</div>
+    <div class="tab" data-tab="hist">Hist</div>
   </div>
 
+  <div class="panels">
 
-  <div class="panel" id="p-ai">
-    <span class="lbl">AI — Fix OCR + Spelling + Grammar</span>
-    <div class="row">
-      <button class="btn ai" id="aiFixBtn">✦ AI Clean + Spell Fix</button>
+    <!-- CLEAN -->
+    <div class="panel active" id="p-clean">
+      <div class="row">
+        <button class="btn g" id="ocrBtn">✦ OCR Fix</button>
+        <button class="btn" id="trimBtn">Trim Lines</button>
+        <button class="btn" id="noBlanksBtn">Strip Blanks</button>
+        <button class="btn" id="collBtn">Collapse Blanks</button>
+        <button class="btn" id="dedupBtn">Deduplicate</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="sortBtn">Sort A→Z</button>
+        <button class="btn" id="revBtn">Reverse</button>
+        <button class="btn" id="joinBtn">Join Lines</button>
+        <button class="btn" id="unwrapBtn">Unwrap Paras</button>
+        <button class="btn" id="htmlBtn">Strip HTML</button>
+        <button class="btn" id="fixSpacesBtn">Fix Spaces</button>
+      </div>
+      <span class="lbl">Case</span>
+      <div class="row">
+        <button class="btn" id="lcBtn">lower</button>
+        <button class="btn" id="ucBtn">UPPER</button>
+        <button class="btn" id="tcBtn">Title</button>
+        <button class="btn" id="scBtn">Sentence</button>
+      </div>
+      <span class="lbl">Extract</span>
+      <div class="row">
+        <button class="btn b" id="exNumBtn">Numbers</button>
+        <button class="btn b" id="exEmailBtn">Emails</button>
+        <button class="btn b" id="exUrlBtn">URLs</button>
+        <button class="btn" id="noNumBtn">Strip Line#</button>
+        <button class="btn" id="noPuncBtn">Strip Punct</button>
+      </div>
     </div>
-    <div class="ai-note" id="aiStatus">Sends text to Claude. Fixes OCR errors, spelling mistakes, and light grammar — without changing your words or structure.</div>
-    <span class="lbl" style="margin-top:14px">Bullets &amp; Numbering</span>
-    <div class="row">
-      <button class="btn g" id="addBulletBtn">Add Bullets</button>
-      <button class="btn" id="remBulletBtn">Remove Bullets</button>
-    </div>
-    <div class="row">
-      <button class="btn b" id="addNumBtn">Add Numbers</button>
-      <button class="btn" id="remNumBtn">Remove Numbers</button>
-    </div>
-    <div class="row">
-      <button class="btn" id="bul2numBtn">Bullets → Numbers</button>
-      <button class="btn" id="num2bulBtn">Numbers → Bullets</button>
-    </div>
-  </div>
-  <div class="panel" id="p-cut">
-    <span class="lbl">Marker Cut</span>
-    <div class="irow">
-      <input class="field" id="cutMark" placeholder="marker word or symbol">
-    </div>
-    <div class="row">
-      <button class="btn r" id="delBefBtn">Delete Before</button>
-      <button class="btn r" id="delAftBtn">Delete After</button>
-    </div>
-    <span class="lbl">Between Tokens</span>
-    <div class="irow">
-      <input class="field" id="sTok" placeholder="Start token">
-      <span style="color:var(--rule2)">→</span>
-      <input class="field" id="eTok" placeholder="End token">
-    </div>
-    <div class="row">
-      <button class="btn a" id="delBetBtn">Delete Between</button>
-      <button class="btn b" id="keepBetBtn">Keep Between</button>
-    </div>
-  </div>
 
-  <div class="panel" id="p-find">
-    <span class="lbl">Find</span>
-    <div class="irow"><input class="field" id="findTxt" placeholder="Find…"></div>
-    <span class="lbl">Replace with</span>
-    <div class="irow"><input class="field" id="repTxt" placeholder="Replace with… (leave blank to delete)"></div>
-    <div class="row">
-      <button class="btn" id="rep1Btn">Replace First</button>
-      <button class="btn b" id="repAllBtn">Replace All</button>
-      <button class="btn" id="reBtn">Regex Replace</button>
-      <button class="btn g" id="hlBtn">Find &amp; Select</button>
+    <!-- AI -->
+    <div class="panel" id="p-ai">
+      <span class="lbl">Gemini API Key</span>
+      <div class="irow">
+        <input class="field" id="dsKey" type="password" placeholder="Paste Gemini API key…" autocomplete="off">
+        <button class="btn g" id="saveKeyBtn">Save</button>
+        <button class="btn r" id="clearKeyBtn">Clear</button>
+      </div>
+      <div class="ai-note" id="keyStatus">Key saved on device only. Get free key at aistudio.google.com → Get API Key</div>
+      <span class="lbl" style="margin-top:10px">AI — Fix OCR + Spelling + Grammar</span>
+      <div class="row">
+        <button class="btn ai" id="aiFixBtn">✦ AI Clean + Spell Fix</button>
+      </div>
+      <div class="ai-note" id="aiStatus">Fixes OCR errors, spelling &amp; light grammar using Gemini. Works on selection too. Free tier: 1500 requests/day.</div>
+      <span class="lbl" style="margin-top:14px">Bullets &amp; Numbering</span>
+      <div class="row">
+        <button class="btn g" id="addBulletBtn">Add Bullets</button>
+        <button class="btn" id="remBulletBtn">Remove Bullets</button>
+      </div>
+      <div class="row">
+        <button class="btn b" id="addNumBtn">Add Numbers</button>
+        <button class="btn" id="remNumBtn">Remove Numbers</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="bul2numBtn">Bullets → Numbers</button>
+        <button class="btn" id="num2bulBtn">Numbers → Bullets</button>
+      </div>
     </div>
-  </div>
 
-  <div class="panel" id="p-wrap">
-    <span class="lbl">Prefix / Suffix each line</span>
-    <div class="irow">
-      <input class="field" id="preF" placeholder="Prefix…">
-      <input class="field" id="sufF" placeholder="Suffix…">
-      <button class="btn b" id="affBtn">Apply</button>
+    <!-- CUT -->
+    <div class="panel" id="p-cut">
+      <span class="lbl">Marker Cut</span>
+      <div class="irow">
+        <input class="field" id="cutMark" placeholder="marker word or symbol">
+      </div>
+      <div class="row">
+        <button class="btn r" id="delBefBtn">Delete Before</button>
+        <button class="btn r" id="delAftBtn">Delete After</button>
+      </div>
+      <span class="lbl">Between Tokens</span>
+      <div class="irow">
+        <input class="field" id="sTok" placeholder="Start token">
+        <span style="color:var(--rule2)">→</span>
+        <input class="field" id="eTok" placeholder="End token">
+      </div>
+      <div class="row">
+        <button class="btn a" id="delBetBtn">Delete Between</button>
+        <button class="btn b" id="keepBetBtn">Keep Between</button>
+      </div>
     </div>
-    <span class="lbl">Quick Wrap lines</span>
-    <div class="row">
-      <button class="btn" id="wqBtn">"Quotes"</button>
-      <button class="btn" id="wpBtn">(Parens)</button>
-      <button class="btn" id="wbBtn">[Brackets]</button>
-      <button class="btn" id="wcBtn">{Curly}</button>
+
+    <!-- FIND -->
+    <div class="panel" id="p-find">
+      <span class="lbl">Find</span>
+      <div class="irow"><input class="field" id="findTxt" placeholder="Find…"></div>
+      <span class="lbl">Replace with</span>
+      <div class="irow"><input class="field" id="repTxt" placeholder="Replace with… (blank to delete)"></div>
+      <div class="row">
+        <button class="btn" id="rep1Btn">Replace First</button>
+        <button class="btn b" id="repAllBtn">Replace All</button>
+        <button class="btn" id="reBtn">Regex Replace</button>
+        <button class="btn g" id="hlBtn">Find &amp; Select</button>
+      </div>
     </div>
-    <span class="lbl">Convert</span>
-    <div class="row">
-      <button class="btn" id="lnBtn">Add Line Nums</button>
-      <button class="btn" id="csvBtn">Lines → CSV</button>
-      <button class="btn" id="csv2Btn">CSV → Lines</button>
+
+    <!-- WRAP -->
+    <div class="panel" id="p-wrap">
+      <span class="lbl">Prefix / Suffix each line</span>
+      <div class="irow">
+        <input class="field" id="preF" placeholder="Prefix…">
+        <input class="field" id="sufF" placeholder="Suffix…">
+        <button class="btn b" id="affBtn">Apply</button>
+      </div>
+      <span class="lbl">Quick Wrap lines</span>
+      <div class="row">
+        <button class="btn" id="wqBtn">"Quotes"</button>
+        <button class="btn" id="wpBtn">(Parens)</button>
+        <button class="btn" id="wbBtn">[Brackets]</button>
+        <button class="btn" id="wcBtn">{Curly}</button>
+      </div>
+      <span class="lbl">Convert</span>
+      <div class="row">
+        <button class="btn" id="lnBtn">Add Line Nums</button>
+        <button class="btn" id="csvBtn">Lines → CSV</button>
+        <button class="btn" id="csv2Btn">CSV → Lines</button>
+      </div>
     </div>
-  </div>
 
-  <div class="panel" id="p-hist">
-    <div id="histList"><span style="opacity:.4;font-size:.65rem">No history yet</span></div>
-  </div>
+    <!-- HISTORY -->
+    <div class="panel" id="p-hist">
+      <div id="histList"><span style="opacity:.4;font-size:.65rem">No history yet</span></div>
+    </div>
 
-</div>
-</div>
+  </div><!-- end .panels -->
+</div><!-- end .tabs-panels -->
 
+<!-- DOCK -->
 <div class="dock">
   <button class="btn" id="pasteBtn">📥 Paste</button>
   <button class="btn hi" id="ocrDockBtn">✦ OCR Fix</button>
@@ -268,176 +295,274 @@ body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:
 <div id="toast"></div>
 
 <script>
-const ta=document.getElementById('mainText');
-let hist=[],histLbl=[];
-const toastEl=document.getElementById('toast');
+const ta = document.getElementById('mainText');
+let hist = [], histLbl = [];
+
+// ── Toast ──
+const toastEl = document.getElementById('toast');
 let tt;
-function toast(m){clearTimeout(tt);toastEl.textContent=m;toastEl.classList.add('on');tt=setTimeout(()=>toastEl.classList.remove('on'),1700);}
+function toast(m) { clearTimeout(tt); toastEl.textContent = m; toastEl.classList.add('on'); tt = setTimeout(() => toastEl.classList.remove('on'), 1700); }
 
-function stats(){const v=ta.value;document.getElementById('sC').textContent=v.length;document.getElementById('sW').textContent=v.trim()?v.trim().split(/\s+/).length:0;document.getElementById('sL').textContent=v?v.split('\n').length:0;}
-ta.addEventListener('input',stats);stats();
+// ── Stats ──
+function stats() {
+  const v = ta.value;
+  document.getElementById('sC').textContent = v.length;
+  document.getElementById('sW').textContent = v.trim() ? v.trim().split(/\s+/).length : 0;
+  document.getElementById('sL').textContent = v ? v.split('\n').length : 0;
+}
+ta.addEventListener('input', stats); stats();
 
-setInterval(()=>{const n=new Date();document.getElementById('clk').textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});},1000);
+// ── Clock ──
+setInterval(() => {
+  const n = new Date();
+  document.getElementById('clk').textContent = n.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+}, 1000);
 
-function push(lbl){hist.push(ta.value);histLbl.push(lbl);if(hist.length>40){hist.shift();histLbl.shift();}renderHist();}
-function renderHist(){
-  const el=document.getElementById('histList');el.innerHTML='';
-  if(!hist.length){el.innerHTML='<span style="opacity:.4;font-size:.65rem">No history yet</span>';return;}
-  for(let i=hist.length-1;i>=0;i--){
-    const d=document.createElement('div');d.className='he';
-    const prev=hist[i].replace(/\n/g,'↵').slice(0,52);
-    d.innerHTML=`<span style="color:var(--amber);flex-shrink:0">${histLbl[i]}</span><span class="prev">${prev}</span><span class="rv">↩</span>`;
-    d.onclick=()=>{ta.value=hist[i];stats();toast('Restored: '+histLbl[i]);};
+// ── History ──
+function push(lbl) {
+  hist.push(ta.value); histLbl.push(lbl);
+  if (hist.length > 40) { hist.shift(); histLbl.shift(); }
+  renderHist();
+}
+function renderHist() {
+  const el = document.getElementById('histList'); el.innerHTML = '';
+  if (!hist.length) { el.innerHTML = '<span style="opacity:.4;font-size:.65rem">No history yet</span>'; return; }
+  for (let i = hist.length - 1; i >= 0; i--) {
+    const d = document.createElement('div'); d.className = 'he';
+    const prev = hist[i].replace(/\n/g, '↵').slice(0, 52);
+    d.innerHTML = `<span style="color:var(--amber);flex-shrink:0">${histLbl[i]}</span><span class="prev">${prev}</span><span class="rv">↩</span>`;
+    d.onclick = () => { ta.value = hist[i]; stats(); toast('Restored: ' + histLbl[i]); };
     el.appendChild(d);
   }
 }
-function undo(){if(!hist.length){toast('Nothing to undo');return;}ta.value=hist.pop();const l=histLbl.pop();renderHist();stats();toast('Undone: '+l);}
-function apply(lbl,fn){push(lbl);ta.value=fn(ta.value);stats();toast(lbl);}
+function undo() {
+  if (!hist.length) { toast('Nothing to undo'); return; }
+  ta.value = hist.pop(); const l = histLbl.pop(); renderHist(); stats(); toast('Undone: ' + l);
+}
 
-const L=t=>t.split('\n');
-const J=a=>a.join('\n');
+// ── Selection tracking ──
+const selBar = document.getElementById('selBar');
+const selCountEl = document.getElementById('selCount');
 
-// Tabs
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.onclick=()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+function getSel() {
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  if (s === e) return null;
+  return { start: s, end: e, text: ta.value.substring(s, e) };
+}
+function checkSel() {
+  const sel = getSel();
+  if (sel && sel.text.length > 0) {
+    selCountEl.textContent = sel.text.length;
+    selBar.classList.add('on');
+  } else {
+    selBar.classList.remove('on');
+  }
+}
+ta.addEventListener('mouseup', checkSel);
+ta.addEventListener('touchend', () => setTimeout(checkSel, 80));
+ta.addEventListener('keyup', checkSel);
+document.getElementById('selClear').onclick = () => {
+  ta.setSelectionRange(0, 0);
+  selBar.classList.remove('on');
+  ta.focus();
+};
+
+// ── Apply (selection-aware) ──
+function apply(lbl, fn) {
+  const sel = getSel();
+  if (sel) {
+    push(lbl + ' [sel]');
+    const result = fn(sel.text);
+    ta.value = ta.value.substring(0, sel.start) + result + ta.value.substring(sel.end);
+    ta.setSelectionRange(sel.start, sel.start + result.length);
+    stats(); toast(lbl + ' (selection)'); checkSel();
+  } else {
+    push(lbl);
+    ta.value = fn(ta.value);
+    stats(); toast(lbl);
+  }
+}
+
+const L = t => t.split('\n');
+const J = a => a.join('\n');
+
+// ── Toolbar toggle ──
+const tabsPanels = document.getElementById('tabsPanels');
+document.getElementById('toolbarToggle').addEventListener('click', () => {
+  tabsPanels.classList.toggle('open');
+});
+
+// ── Tabs ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     tab.classList.add('active');
-    document.getElementById('p-'+tab.dataset.tab).classList.add('active');
+    document.getElementById('p-' + tab.dataset.tab).classList.add('active');
   };
 });
 
-function B(id,fn){const el=document.getElementById(id);if(el)el.addEventListener('click',fn);}
+function B(id, fn) { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
 
-function ocrFix(t){
-  t=t.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  t=t.replace(/[ \t]+/g,' ');
-  t=t.replace(/(\d)[Oo](\d)/g,'$10$2');
-  t=t.replace(/([A-Z])1([A-Z])/g,'$1I$2');
-  t=t.replace(/([a-z])1([a-z])/g,'$1l$2');
-  t=t.replace(/\b0([a-zA-Z])/g,'O$1');
-  t=t.replace(/([a-z]),([a-z])/g,'$1, $2');
-  t=t.replace(/([a-zA-Z])\.([A-Z])/g,'$1. $2');
-  t=J(L(t).map(l=>l.trim()));
-  t=t.replace(/\n{3,}/g,'\n\n');
+// ── OCR Fix ──
+function ocrFix(t) {
+  t = t.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  t = t.replace(/[ \t]+/g, ' ');
+  t = t.replace(/(\d)[Oo](\d)/g, '$10$2');
+  t = t.replace(/([A-Z])1([A-Z])/g, '$1I$2');
+  t = t.replace(/([a-z])1([a-z])/g, '$1l$2');
+  t = t.replace(/\b0([a-zA-Z])/g, 'O$1');
+  t = t.replace(/([a-z]),([a-z])/g, '$1, $2');
+  t = t.replace(/([a-zA-Z])\.([A-Z])/g, '$1. $2');
+  t = J(L(t).map(l => l.trim()));
+  t = t.replace(/\n{3,}/g, '\n\n');
   return t.trim();
 }
 
-B('ocrBtn',()=>apply('OCR Fix',ocrFix));
-B('ocrDockBtn',()=>apply('OCR Fix',ocrFix));
-B('trimBtn',()=>apply('Trim Lines',t=>J(L(t).map(l=>l.trim()))));
-B('noBlanksBtn',()=>apply('Strip Blanks',t=>J(L(t).filter(l=>l.trim()))));
-B('collBtn',()=>apply('Collapse Blanks',t=>t.replace(/(\n\s*){3,}/g,'\n\n')));
-B('dedupBtn',()=>apply('Deduplicate',t=>{const s=new Set(),o=[];for(const l of L(t)){const k=l.trim().toLowerCase();if(!k||!s.has(k)){s.add(k);o.push(l);}}return J(o);}));
-B('sortBtn',()=>apply('Sort A→Z',t=>J(L(t).sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase())))));
-B('revBtn',()=>apply('Reverse',t=>J(L(t).reverse())));
-B('joinBtn',()=>apply('Join Lines',t=>t.replace(/\n/g,' ').replace(/\s+/g,' ').trim()));
-B('unwrapBtn',()=>apply('Unwrap Paras',t=>t.replace(/([^\n])\n([^\n])/g,'$1 $2')));
-B('htmlBtn',()=>apply('Strip HTML',t=>t.replace(/<[^>]*>/g,'')));
-B('fixSpacesBtn',()=>apply('Fix Spaces',t=>t.replace(/[ \t]+/g,' ').replace(/ \n/g,'\n').replace(/\n /g,'\n')));
-B('lcBtn',()=>apply('lowercase',t=>t.toLowerCase()));
-B('ucBtn',()=>apply('UPPERCASE',t=>t.toUpperCase()));
-B('tcBtn',()=>apply('Title Case',t=>t.replace(/\w\S*/g,w=>w[0].toUpperCase()+w.slice(1).toLowerCase())));
-B('scBtn',()=>apply('Sentence Case',t=>t.replace(/(^\s*\w|[.!?]\s+\w)/g,m=>m.toUpperCase())));
-B('exNumBtn',()=>apply('Extract Numbers',t=>{const m=t.match(/\b\d+(?:[.,]\d+)*\b/g);return m?m.join('\n'):'';}));
-B('exEmailBtn',()=>apply('Extract Emails',t=>{const m=t.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g);return m?m.join('\n'):'';}));
-B('exUrlBtn',()=>apply('Extract URLs',t=>{const m=t.match(/https?:\/\/[^\s]+/g);return m?m.join('\n'):'';}));
-B('noNumBtn',()=>apply('Strip Line#',t=>J(L(t).map(l=>l.replace(/^\s*\d+[\.\)\-\s]+/,'')))));
-B('noPuncBtn',()=>apply('Strip Punct',t=>t.replace(/[^\w\s\n]/g,'')));
+// ── CLEAN bindings ──
+B('ocrBtn',       () => apply('OCR Fix', ocrFix));
+B('ocrDockBtn',   () => apply('OCR Fix', ocrFix));
+B('trimBtn',      () => apply('Trim Lines', t => J(L(t).map(l => l.trim()))));
+B('noBlanksBtn',  () => apply('Strip Blanks', t => J(L(t).filter(l => l.trim()))));
+B('collBtn',      () => apply('Collapse Blanks', t => t.replace(/(\n\s*){3,}/g, '\n\n')));
+B('dedupBtn',     () => apply('Deduplicate', t => { const s = new Set(), o = []; for (const l of L(t)) { const k = l.trim().toLowerCase(); if (!k || !s.has(k)) { s.add(k); o.push(l); } } return J(o); }));
+B('sortBtn',      () => apply('Sort A→Z', t => J(L(t).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())))));
+B('revBtn',       () => apply('Reverse', t => J(L(t).reverse())));
+B('joinBtn',      () => apply('Join Lines', t => t.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()));
+B('unwrapBtn',    () => apply('Unwrap Paras', t => t.replace(/([^\n])\n([^\n])/g, '$1 $2')));
+B('htmlBtn',      () => apply('Strip HTML', t => t.replace(/<[^>]*>/g, '')));
+B('fixSpacesBtn', () => apply('Fix Spaces', t => t.replace(/[ \t]+/g, ' ').replace(/ \n/g, '\n').replace(/\n /g, '\n')));
+B('lcBtn',        () => apply('lowercase', t => t.toLowerCase()));
+B('ucBtn',        () => apply('UPPERCASE', t => t.toUpperCase()));
+B('tcBtn',        () => apply('Title Case', t => t.replace(/\w\S*/g, w => w[0].toUpperCase() + w.slice(1).toLowerCase())));
+B('scBtn',        () => apply('Sentence Case', t => t.replace(/(^\s*\w|[.!?]\s+\w)/g, m => m.toUpperCase())));
+B('exNumBtn',     () => apply('Extract Numbers', t => { const m = t.match(/\b\d+(?:[.,]\d+)*\b/g); return m ? m.join('\n') : ''; }));
+B('exEmailBtn',   () => apply('Extract Emails', t => { const m = t.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g); return m ? m.join('\n') : ''; }));
+B('exUrlBtn',     () => apply('Extract URLs', t => { const m = t.match(/https?:\/\/[^\s]+/g); return m ? m.join('\n') : ''; }));
+B('noNumBtn',     () => apply('Strip Line#', t => J(L(t).map(l => l.replace(/^\s*\d+[.):\-\s]+/, '')))));
+B('noPuncBtn',    () => apply('Strip Punct', t => t.replace(/[^\w\s\n]/g, '')));
 
-B('delBefBtn',()=>{const m=document.getElementById('cutMark').value;if(!m){toast('Enter marker');return;}const i=ta.value.indexOf(m);if(i<0){toast('Not found');return;}apply(`Del Before`,t=>t.substring(i));});
-B('delAftBtn',()=>{const m=document.getElementById('cutMark').value;if(!m){toast('Enter marker');return;}const i=ta.value.indexOf(m);if(i<0){toast('Not found');return;}apply(`Del After`,t=>t.substring(0,i+m.length));});
-B('delBetBtn',()=>{const s=document.getElementById('sTok').value,e=document.getElementById('eTok').value;if(!s||!e){toast('Need both tokens');return;}const esc=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');apply('Delete Between',t=>t.replace(new RegExp(`${esc(s)}[\\s\\S]*?${esc(e)}`,'g'),''));});
-B('keepBetBtn',()=>{const s=document.getElementById('sTok').value,e=document.getElementById('eTok').value;if(!s||!e){toast('Need both tokens');return;}const esc=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const re=new RegExp(`${esc(s)}([\\s\\S]*?)${esc(e)}`,'g');const out=[];let m;while((m=re.exec(ta.value))!==null)if(m[1].trim())out.push(m[1].trim());if(!out.length){toast('Nothing found');return;}apply('Keep Between',()=>out.join('\n'));});
+// ── GEMINI KEY ──
+const DS_KEY_STORE = 'ocr_gemini_key';
+function loadKey() {
+  const k = localStorage.getItem(DS_KEY_STORE) || '';
+  if (k) {
+    document.getElementById('dsKey').value = k;
+    document.getElementById('keyStatus').textContent = 'Key loaded. Ready to use.';
+  }
+}
+B('saveKeyBtn', () => {
+  const k = document.getElementById('dsKey').value.trim();
+  if (!k) { toast('Paste a key first'); return; }
+  localStorage.setItem(DS_KEY_STORE, k);
+  document.getElementById('keyStatus').textContent = 'Key saved locally on device.';
+  toast('API key saved');
+});
+B('clearKeyBtn', () => {
+  localStorage.removeItem(DS_KEY_STORE);
+  document.getElementById('dsKey').value = '';
+  document.getElementById('keyStatus').textContent = 'Key cleared.';
+  toast('Key cleared');
+});
+loadKey();
 
-B('rep1Btn',()=>{const f=document.getElementById('findTxt').value,r=document.getElementById('repTxt').value;if(!f){toast('Enter find text');return;}const i=ta.value.indexOf(f);if(i<0){toast('Not found');return;}apply('Replace First',t=>t.substring(0,i)+r+t.substring(i+f.length));});
-B('repAllBtn',()=>{const f=document.getElementById('findTxt').value,r=document.getElementById('repTxt').value;if(!f){toast('Enter find text');return;}const n=ta.value.split(f).length-1;apply(`Replace All (${n})`,t=>t.split(f).join(r));});
-B('reBtn',()=>{const f=document.getElementById('findTxt').value,r=document.getElementById('repTxt').value;if(!f){toast('Enter regex');return;}try{apply('Regex Replace',t=>t.replace(new RegExp(f,'g'),r));}catch{toast('Bad regex');}});
-B('hlBtn',()=>{const f=document.getElementById('findTxt').value;if(!f){toast('Enter find text');return;}const i=ta.value.indexOf(f);if(i<0){toast('Not found');return;}ta.focus();ta.setSelectionRange(i,i+f.length);toast(`Found at pos ${i}`);});
-
-B('affBtn',()=>{const p=document.getElementById('preF').value,s=document.getElementById('sufF').value;apply('Affix',t=>J(L(t).map(l=>p+l+s)));});
-B('wqBtn',()=>apply('Wrap Quotes',t=>J(L(t).map(l=>l.trim()?`"${l}"`:l))));
-B('wpBtn',()=>apply('Wrap Parens',t=>J(L(t).map(l=>l.trim()?`(${l})`:l))));
-B('wbBtn',()=>apply('Wrap Brackets',t=>J(L(t).map(l=>l.trim()?`[${l}]`:l))));
-B('wcBtn',()=>apply('Wrap Curly',t=>J(L(t).map(l=>l.trim()?`{${l}}`:l))));
-B('lnBtn',()=>apply('Add Line Nums',t=>J(L(t).map((l,i)=>`${i+1}. ${l}`))));
-B('csvBtn',()=>apply('Lines→CSV',t=>L(t).filter(l=>l.trim()).map(l=>l.includes(',')?`"${l}"`:l).join(',')));
-B('csv2Btn',()=>apply('CSV→Lines',t=>{const out=[];const re=/("(?:[^"]|"")*"|[^,\n]+)(?:,|$)/g;let m;while((m=re.exec(t))!==null)out.push(m[1].replace(/^"|"$/g,'').replace(/""/g,'"'));return out.join('\n');}));
-
-B('clearBtn',()=>{push('Before Clear');ta.value='';stats();toast('Cleared');});
-B('undoBtn',undo);
-B('copyBtn',async()=>{if(!ta.value){toast('Nothing to copy');return;}await navigator.clipboard.writeText(ta.value).catch(()=>{});toast('Copied ✓');});
-B('pasteBtn',async()=>{try{const c=await navigator.clipboard.readText();push('Before Paste');ta.value+=c;stats();toast('Pasted ✓');}catch{toast('Use Ctrl+V to paste');}});
-
-stats();
-
-// AI Clean + Spell
+// ── AI FIX (Gemini) ──
 B('aiFixBtn', async () => {
-  const text = ta.value.trim();
+  const key = localStorage.getItem(DS_KEY_STORE) || document.getElementById('dsKey').value.trim();
+  if (!key) { toast('Save your Gemini API key first'); document.getElementById('keyStatus').textContent = 'No key found — paste and save your key above.'; return; }
+  const sel = getSel();
+  const text = sel ? sel.text : ta.value.trim();
   if (!text) { toast('No text to fix'); return; }
   const btn = document.getElementById('aiFixBtn');
   const status = document.getElementById('aiStatus');
-  btn.disabled = true;
-  btn.textContent = '... processing';
-  status.textContent = 'Sending to Claude...';
+  btn.disabled = true; btn.textContent = '... processing';
+  status.textContent = sel ? 'Sending selection to Gemini...' : 'Sending to Gemini...';
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `Fix OCR errors, spelling mistakes, and obvious grammar issues in the text below. 
+    const prompt = `Fix OCR errors, spelling mistakes, and obvious grammar issues in the text below.
 Rules:
-- Do NOT change the meaning, structure, or add/remove content
+- Do NOT change meaning, structure, or add/remove content
 - Do NOT add emoji
 - Preserve all line breaks and paragraph structure
 - Fix: broken characters, wrong OCR letters (0/O, 1/l/I), missing spaces, misspellings
 - Return ONLY the corrected text, nothing else
 
 Text:
-${text}`
-        }]
-      })
-    });
+${text}`;
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+        })
+      }
+    );
     const data = await res.json();
-    if (data.content && data.content[0] && data.content[0].text) {
-      push('Before AI Fix');
-      ta.value = data.content[0].text.trim();
+    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+      const fixed = data.candidates[0].content.parts[0].text.trim();
+      if (sel) {
+        push('Before AI Fix [sel]');
+        ta.value = ta.value.substring(0, sel.start) + fixed + ta.value.substring(sel.end);
+        ta.setSelectionRange(sel.start, sel.start + fixed.length);
+        checkSel();
+      } else {
+        push('Before AI Fix');
+        ta.value = fixed;
+      }
       stats();
-      status.textContent = 'Done. History saved — tap Undo to revert.';
+      status.textContent = 'Done. Undo available in History tab.';
       toast('AI Fix applied');
     } else {
-      status.textContent = 'Error: ' + (data.error?.message || 'Unknown error');
+      const msg = data.error?.message || JSON.stringify(data);
+      status.textContent = 'Error: ' + msg;
       toast('AI Fix failed');
     }
-  } catch(e) {
-    status.textContent = 'Network error. Try again.';
+  } catch (e) {
+    status.textContent = 'Network error: ' + e.message;
     toast('Network error');
   }
-  btn.disabled = false;
-  btn.textContent = '✦ AI Clean + Spell Fix';
+  btn.disabled = false; btn.textContent = '✦ AI Clean + Spell Fix';
 });
 
-// Bullets & Numbering
-B('addBulletBtn', () => apply('Add Bullets', t => J(L(t).map(l => l.trim() ? '• ' + l.replace(/^[•\-\*]\s*/,'') : l))));
-B('remBulletBtn', () => apply('Remove Bullets', t => J(L(t).map(l => l.replace(/^[•\-\*]\s*/,'')))));
-B('addNumBtn', () => {
-  let n = 0;
-  apply('Add Numbers', t => J(L(t).map(l => { if(l.trim()){n++;return n+'. '+l.replace(/^\d+[\.\)]\s*/,'');} return l; })));
-});
-B('remNumBtn', () => apply('Remove Numbers', t => J(L(t).map(l => l.replace(/^\d+[\.\)]\s*/,'')))));
-B('bul2numBtn', () => {
-  let n = 0;
-  apply('Bullets→Numbers', t => J(L(t).map(l => {
-    if(/^[•\-\*]\s/.test(l)){n++;return n+'. '+l.replace(/^[•\-\*]\s*/,'');}
-    return l;
-  })));
-});
-B('num2bulBtn', () => apply('Numbers→Bullets', t => J(L(t).map(l => l.replace(/^\d+[\.\)]\s*/,'• ')))));
+// ── BULLETS & NUMBERING ──
+B('addBulletBtn', () => apply('Add Bullets', t => J(L(t).map(l => l.trim() ? '• ' + l.replace(/^[•\-*]\s*/, '') : l))));
+B('remBulletBtn', () => apply('Remove Bullets', t => J(L(t).map(l => l.replace(/^[•\-*]\s*/, '')))));
+B('addNumBtn', () => apply('Add Numbers', t => { let n = 0; return J(L(t).map(l => { if (l.trim()) { n++; return n + '. ' + l.replace(/^\d+[.)]\s*/, ''); } return l; })); }));
+B('remNumBtn',    () => apply('Remove Numbers', t => J(L(t).map(l => l.replace(/^\d+[.)]\s*/, '')))));
+B('bul2numBtn',   () => apply('Bullets→Numbers', t => { let n = 0; return J(L(t).map(l => { if (/^[•\-*]\s/.test(l)) { n++; return n + '. ' + l.replace(/^[•\-*]\s*/, ''); } return l; })); }));
+B('num2bulBtn',   () => apply('Numbers→Bullets', t => J(L(t).map(l => l.replace(/^\d+[.)]\s*/, '• ')))));
 
+// ── CUT ──
+B('delBefBtn', () => { const m = document.getElementById('cutMark').value; if (!m) { toast('Enter marker'); return; } const i = ta.value.indexOf(m); if (i < 0) { toast('Not found'); return; } apply('Del Before', t => t.substring(i)); });
+B('delAftBtn', () => { const m = document.getElementById('cutMark').value; if (!m) { toast('Enter marker'); return; } const i = ta.value.indexOf(m); if (i < 0) { toast('Not found'); return; } apply('Del After', t => t.substring(0, i + m.length)); });
+B('delBetBtn', () => { const s = document.getElementById('sTok').value, e = document.getElementById('eTok').value; if (!s || !e) { toast('Need both tokens'); return; } const esc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); apply('Delete Between', t => t.replace(new RegExp(`${esc(s)}[\\s\\S]*?${esc(e)}`, 'g'), '')); });
+B('keepBetBtn', () => { const s = document.getElementById('sTok').value, e = document.getElementById('eTok').value; if (!s || !e) { toast('Need both tokens'); return; } const esc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const re = new RegExp(`${esc(s)}([\\s\\S]*?)${esc(e)}`, 'g'); const out = []; let m; while ((m = re.exec(ta.value)) !== null) if (m[1].trim()) out.push(m[1].trim()); if (!out.length) { toast('Nothing found'); return; } apply('Keep Between', () => out.join('\n')); });
+
+// ── FIND ──
+B('rep1Btn', () => { const f = document.getElementById('findTxt').value, r = document.getElementById('repTxt').value; if (!f) { toast('Enter find text'); return; } const i = ta.value.indexOf(f); if (i < 0) { toast('Not found'); return; } apply('Replace First', t => t.substring(0, i) + r + t.substring(i + f.length)); });
+B('repAllBtn', () => { const f = document.getElementById('findTxt').value, r = document.getElementById('repTxt').value; if (!f) { toast('Enter find text'); return; } const n = ta.value.split(f).length - 1; apply(`Replace All (${n})`, t => t.split(f).join(r)); });
+B('reBtn', () => { const f = document.getElementById('findTxt').value, r = document.getElementById('repTxt').value; if (!f) { toast('Enter regex'); return; } try { apply('Regex Replace', t => t.replace(new RegExp(f, 'g'), r)); } catch { toast('Bad regex'); } });
+B('hlBtn', () => { const f = document.getElementById('findTxt').value; if (!f) { toast('Enter find text'); return; } const i = ta.value.indexOf(f); if (i < 0) { toast('Not found'); return; } ta.focus(); ta.setSelectionRange(i, i + f.length); checkSel(); toast(`Found at pos ${i}`); });
+
+// ── WRAP ──
+B('affBtn',  () => { const p = document.getElementById('preF').value, s = document.getElementById('sufF').value; apply('Affix', t => J(L(t).map(l => p + l + s))); });
+B('wqBtn',   () => apply('Wrap Quotes',    t => J(L(t).map(l => l.trim() ? `"${l}"` : l))));
+B('wpBtn',   () => apply('Wrap Parens',    t => J(L(t).map(l => l.trim() ? `(${l})` : l))));
+B('wbBtn',   () => apply('Wrap Brackets',  t => J(L(t).map(l => l.trim() ? `[${l}]` : l))));
+B('wcBtn',   () => apply('Wrap Curly',     t => J(L(t).map(l => l.trim() ? `{${l}}` : l))));
+B('lnBtn',   () => apply('Add Line Nums',  t => J(L(t).map((l, i) => `${i + 1}. ${l}`))));
+B('csvBtn',  () => apply('Lines→CSV',      t => L(t).filter(l => l.trim()).map(l => l.includes(',') ? `"${l}"` : l).join(',')));
+B('csv2Btn', () => apply('CSV→Lines',      t => { const out = []; const re = /("(?:[^"]|"")*"|[^,\n]+)(?:,|$)/g; let m; while ((m = re.exec(t)) !== null) out.push(m[1].replace(/^"|"$/g, '').replace(/""/g, '"')); return out.join('\n'); }));
+
+// ── DOCK ──
+B('clearBtn', () => { push('Before Clear'); ta.value = ''; stats(); toast('Cleared'); });
+B('undoBtn', undo);
+B('copyBtn', async () => { if (!ta.value) { toast('Nothing to copy'); return; } await navigator.clipboard.writeText(ta.value).catch(() => {}); toast('Copied ✓'); });
+B('pasteBtn', async () => { try { const c = await navigator.clipboard.readText(); push('Before Paste'); ta.value += c; stats(); toast('Pasted ✓'); } catch { toast('Use Ctrl+V to paste'); } });
+
+stats();
 </script>
 </body>
 </html>
